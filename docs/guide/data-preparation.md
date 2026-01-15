@@ -6,44 +6,44 @@ DSLighting 支持多种数据来源和格式。
 
 ### 安装 MLE-Bench
 
-\`\`\`bash
+```bash
 git clone https://github.com/openai/mle-bench.git
 cd mle-bench
 pip install -e .
-\`\`\`
+```
 
 ### 下载数据集
 
-\`\`\`bash
+```bash
 # 下载所有数据集
 python scripts/prepare.py --competition all
 
 # 下载特定竞赛
 python scripts/prepare.py --competition bike-sharing-demand
-\`\`\`
+```
 
 ### 数据组织结构
 
-\`\`\`
+```
 data/competitions/
   <竞赛ID>/
     config.yaml           # 竞赛配置文件
     prepared/
       public/            # 公开数据（训练集、样本提交）
       private/           # 私有数据（测试标签，用于评分）
-\`\`\`
+```
 
 ## 自定义数据集
 
 ### 创建自定义任务
 
-1. 在 \`data/competitions/\` 下创建任务目录
-2. 添加 \`config.yaml\` 配置文件
+1. 在 `data/competitions/` 下创建任务目录
+2. 添加 `config.yaml` 配置文件
 3. 组织训练数据和测试数据
 
 ### 配置文件示例
 
-\`\`\`yaml
+```yaml
 competition_id: my-custom-task
 competition_name: My Custom Task
 description: A custom machine learning task
@@ -56,7 +56,7 @@ dataset:
 evaluation:
   metric: accuracy
   higher_is_better: true
-\`\`\`
+```
 
 ## 数据格式要求
 
