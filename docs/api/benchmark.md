@@ -65,16 +65,6 @@ python run_benchmark.py \\
   --data-dir benchmarks/mlebench/competitions
 ```
 
-### Kaggle
-
-支持各种 Kaggle 竞赛。
-
-```bash
-python run_benchmark.py \\
-  --workflow autokaggle \\
-  --benchmark kaggle
-```
-
 ### 自定义任务
 
 使用自己的数据集。

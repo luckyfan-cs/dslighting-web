@@ -132,6 +132,5 @@ python run_benchmark.py \\
 - **代码优化**: AIDE
 - **复杂规划**: Automania / DSAgent
 - **性能优化**: AFlow
-- **竞赛任务**: AutoKaggle
 
 返回 [API 概览](/api/overview)
