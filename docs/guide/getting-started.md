@@ -13,30 +13,30 @@ DSLIGHTING 是一个全流程数据科学智能助手系统，采用 Agent 式�
 
 ### 1. 克隆仓库
 
-\`\`\`bash
+```bash
 git clone https://github.com/usail-hkust/dslighting.git
 cd dslighting
-\`\`\`
+```
 
 ### 2. 创建虚拟环境
 
-\`\`\`bash
+```bash
 python3.10 -m venv dslighting
-source dslighting/bin/activate  # Windows: dslighting\\Scripts\\activate
-\`\`\`
+source dslighting/bin/activate  # Windows: dslighting\Scripts\activate
+```
 
 ### 3. 安装依赖
 
-\`\`\`bash
+```bash
 pip install -r requirements.txt
-\`\`\`
+```
 
 ### 4. 配置 API 密钥
 
-\`\`\`bash
+```bash
 cp .env.example .env
 # 编辑 .env 文件，设置你的 API 密钥
-\`\`\`
+```
 
 DSLighting 支持多种 LLM 提供商：
 
@@ -48,23 +48,23 @@ DSLighting 支持多种 LLM 提供商：
 
 使用 [MLE-Bench](https://github.com/openai/mle-bench) 数据集：
 
-\`\`\`bash
+```bash
 git clone https://github.com/openai/mle-bench.git
 cd mle-bench
 pip install -e .
 python scripts/prepare.py --competition all
-\`\`\`
+```
 
 ### 6. 运行任务
 
-\`\`\`bash
-python run_benchmark.py \\
-  --workflow aide \\
-  --benchmark mle \\
-  --data-dir data/competitions \\
-  --task-id bike-sharing-demand \\
+```bash
+python run_benchmark.py \
+  --workflow aide \
+  --benchmark mle \
+  --data-dir data/competitions \
+  --task-id bike-sharing-demand \
   --llm-model gpt-4
-\`\`\`
+```
 
 ## 使用 Web UI
 
@@ -72,19 +72,19 @@ python run_benchmark.py \\
 
 ### 启动后端
 
-\`\`\`bash
+```bash
 cd web_ui/backend
 pip install -r requirements.txt
 python main.py
-\`\`\`
+```
 
 ### 启动前端
 
-\`\`\`bash
+```bash
 cd web_ui/frontend
 npm install
 npm run dev
-\`\`\`
+```
 
 访问 [http://localhost:3000](http://localhost:3000) 查看界面。
 
