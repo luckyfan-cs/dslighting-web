@@ -28,30 +28,6 @@ python run_benchmark.py \\
 | `temperature` | LLM 温度参数 | 0.7 |
 | `review_threshold` | 代码审查通过阈值 | 0.8 |
 
-## Automania
-
-**带记忆和任务分解的规划系统**
-
-### 特点
-- 复杂任务分解
-- 上下文记忆管理
-- 多步骤推理
-
-### 使用方法
-
-```bash
-python run_benchmark.py \\
-  --workflow automind \\
-  --planning-iterations 3
-```
-
-### 参数
-
-| 参数 | 说明 | 默认值 |
-|------|------|--------|
-| `planning_iterations` | 规划迭代次数 | 3 |
-| `memory_size` | 记忆窗口大小 | 10 |
-
 ## DSAgent
 
 **结构化操作符流程**
@@ -130,7 +106,7 @@ python run_benchmark.py \\
 
 - **简单任务**: Data Interpreter
 - **代码优化**: AIDE
-- **复杂规划**: Automania / DSAgent
+- **复杂规划**: DSAgent
 - **性能优化**: AFlow
 
 返回 [API 概览](/api/overview)
