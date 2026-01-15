@@ -8,50 +8,50 @@
 
 **A:** DSLighting 需要 Python 3.10 或更高版本。请检查你的 Python 版本：
 
-\`\`\`bash
+```bash
 python --version
 # 或
 python3 --version
-\`\`\`
+```
 
 如果版本不对，可以使用 [pyenv](https://github.com/pyenv/pyenv) 安装正确的版本：
 
-\`\`\`bash
+```bash
 pyenv install 3.10.0
 pyenv local 3.10.0
-\`\`\`
+```
 
 ### Q: pip 安装依赖失败？
 
 **A:** 尝试以下方案：
 
 1. 升级 pip：
-\`\`\`bash
+```bash
 pip install --upgrade pip
-\`\`\`
+```
 
-2. 使用 \`requirements_local.txt\`（不锁定版本）：
-\`\`\`bash
+2. 使用 `requirements_local.txt`（不锁定版本）：
+```bash
 pip install -r requirements_local.txt
-\`\`\`
+```
 
 3. 使用国内镜像源：
-\`\`\`bash
+```bash
 pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
-\`\`\`
+```
 
 ## API 配置问题
 
 ### Q: 如何配置多个 LLM API？
 
-**A:** 在 \`.env\` 文件中使用 \`LLM_MODEL_CONFIGS\`：
+**A:** 在 `.env` 文件中使用 `LLM_MODEL_CONFIGS`：
 
-\`\`\`bash
+```bash
 LLM_MODEL_CONFIGS='[
   {"model": "gpt-4", "api_key": "key1", "api_base": "base1"},
   {"model": "claude-3", "api_key": "key2", "api_base": "base2"}
 ]'
-\`\`\`
+```
 
 ### Q: API 调用失败怎么办？
 
@@ -77,7 +77,7 @@ LLM_MODEL_CONFIGS='[
 **A:** 参考[数据准备指南](/guide/data-preparation)，按照以下步骤：
 
 1. 创建任务目录
-2. 添加 \`config.yaml\`
+2. 添加 `config.yaml`
 3. 组织训练和测试数据
 4. 运行任务
 
@@ -87,9 +87,9 @@ LLM_MODEL_CONFIGS='[
 
 **A:** 检查日志文件：
 
-\`\`\`bash
+```bash
 ls runs/benchmark_results/
-\`\`\`
+```
 
 查看错误日志和输出信息，根据错误信息进行调整。
 

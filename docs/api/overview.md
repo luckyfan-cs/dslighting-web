@@ -8,14 +8,14 @@ DSLIGHTING 提供了丰富的 API 接口，支持灵活的任务配置和执行�
 
 运行基准测试的主要接口。
 
-\`\`\`python
+```python
 python run_benchmark.py \\
   --workflow <workflow_name> \\
   --benchmark <benchmark_name> \\
   --data-dir <path_to_data> \\
   --task-id <task_id> \\
   --llm-model <model_name>
-\`\`\`
+```
 
 ### Agent API
 
@@ -37,12 +37,12 @@ Web UI 的 REST API 接口。
 
 | 参数 | 类型 | 说明 | 默认值 |
 |------|------|------|--------|
-| \`--workflow\` | string | Agent 工作流名称 | aide |
-| \`--benchmark\` | string | 基准测试名称 | mle |
-| \`--data-dir\` | path | 数据目录路径 | data/competitions |
-| \`--llm-model\` | string | LLM 模型名称 | gpt-4 |
-| \`--log-path\` | path | 日志输出路径 | runs/benchmark_results |
-| \`--max-workers\` | int | 最大并发数 | 1 |
+| `--workflow` | string | Agent 工作流名称 | aide |
+| `--benchmark` | string | 基准测试名称 | mle |
+| `--data-dir` | path | 数据目录路径 | data/competitions |
+| `--llm-model` | string | LLM 模型名称 | gpt-4 |
+| `--log-path` | path | 日志输出路径 | runs/benchmark_results |
+| `--max-workers` | int | 最大并发数 | 1 |
 
 ### 工作流特定参数
 

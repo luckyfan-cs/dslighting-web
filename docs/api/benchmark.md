@@ -8,9 +8,9 @@
 
 ### 基本用法
 
-\`\`\`bash
+```bash
 python run_benchmark.py [OPTIONS]
-\`\`\`
+```
 
 ### 命令行参数
 
@@ -36,21 +36,21 @@ python run_benchmark.py [OPTIONS]
 
 #### 运行单个任务
 
-\`\`\`bash
+```bash
 python run_benchmark.py \\
   --workflow aide \\
   --benchmark mle \\
   --data-dir data/competitions \\
   --task-id bike-sharing-demand
-\`\`\`
+```
 
 #### 运行多个任务
 
-\`\`\`bash
+```bash
 python run_benchmark.py \\
   --workflow dsagent \\
   --max-workers 3
-\`\`\`
+```
 
 ## 支持的基准测试
 
@@ -58,38 +58,38 @@ python run_benchmark.py \\
 
 OpenAI 的机器学习评估基准。
 
-\`\`\`bash
+```bash
 python run_benchmark.py \\
   --workflow aide \\
   --benchmark mle \\
   --data-dir benchmarks/mlebench/competitions
-\`\`\`
+```
 
 ### Kaggle
 
 支持各种 Kaggle 竞赛。
 
-\`\`\`bash
+```bash
 python run_benchmark.py \\
   --workflow autokaggle \\
   --benchmark kaggle
-\`\`\`
+```
 
 ### 自定义任务
 
 使用自己的数据集。
 
-\`\`\`bash
+```bash
 python run_benchmark.py \\
   --workflow dsagent \\
   --benchmark custom
-\`\`\`
+```
 
 ## 输出格式
 
 ### 日志结构
 
-\`\`\`
+```
 runs/benchmark_results/
   workflow_on_benchmark/
     model_name/
@@ -99,7 +99,7 @@ runs/benchmark_results/
         submission.csv
         report.md
         artifacts/
-\`\`\`
+```
 
 ### 评估指标
 

@@ -1,0 +1,1 @@
+import{_ as i,c as s,o as e,ag as t}from"./chunks/framework.BHvMP3tD.js";const c=JSON.parse('{"title":"常见问题","description":"","frontmatter":{},"headers":[],"relativePath":"guide/faq.md","filePath":"guide/faq.md"}'),l={name:"guide/faq.md"};function n(h,a,o,p,r,d){return e(),s("div",null,[...a[0]||(a[0]=[t("",53)])])}const u=i(l,[["render",n]]);export{c as __pageData,u as default};
