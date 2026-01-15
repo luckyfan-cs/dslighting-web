@@ -135,7 +135,7 @@ ls runs/benchmark_results/
 
 **A:** 可以通过以下方式：
 
-1. 查看[文档](/)
+1. 查看[文档](https://luckyfan-cs.github.io/dslighting-web/)
 2. 提交 [GitHub Issue](https://github.com/usail-hkust/dslighting/issues)
 3. 加入微信交流群
 
