@@ -16,9 +16,8 @@ export default defineConfig({
   themeConfig: {
     nav: [
       { text: '首页', link: '/' },
-      { text: '快速开始', link: '/guide/getting-started' },
-      { text: '核心功能', link: '/guide/features' },
-      { text: 'API 文档', link: '/api/overview' },
+      { text: '项目指南', link: '/guide/getting-started' },
+      { text: 'Pip 包文档', link: '/api/getting-started' },
       {
         text: 'GitHub',
         link: 'https://github.com/usail-hkust/dslighting'
@@ -28,7 +27,7 @@ export default defineConfig({
     sidebar: {
       '/guide/': [
         {
-          text: '指南',
+          text: '项目开发指南',
           items: [
             { text: '快速开始', link: '/guide/getting-started' },
             { text: '核心功能', link: '/guide/features' },
@@ -40,11 +39,24 @@ export default defineConfig({
       ],
       '/api/': [
         {
-          text: 'API 文档',
+          text: '指南',
           items: [
-            { text: '概览', link: '/api/overview' },
-            { text: 'Agent 工作流', link: '/api/agents' },
-            { text: 'Benchmark API', link: '/api/benchmark' }
+            { text: '快速上手', link: '/api/getting-started' },
+            { text: '核心概念', link: '/api/core-concepts' },
+          ]
+        },
+        {
+          text: '教程',
+          items: [
+            { text: '教程：运行你的第一个基准测试', link: '/api/tutorials/first-benchmark' },
+            { text: '教程：创建自定义 Agent', link: '/api/tutorials/custom-agent' }
+          ]
+        },
+        {
+          text: 'API 参考',
+          items: [
+            { text: 'Python API', link: '/api/python-api' },
+            { text: '命令行工具 (CLI)', link: '/api/cli' }
           ]
         }
       ]
