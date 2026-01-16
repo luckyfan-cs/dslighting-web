@@ -7,16 +7,20 @@
 首先，创建一个独立的 Python 环境（推荐使用 `venv` 或 `conda`）：
 
 ```bash
-# 使用 venv 创建虚拟环境
-python -m venv dslighting-env
+# 使用 venv 创建虚拟环境（需要 Python 3.10+）
+python3.10 -m venv dslighting-env
 source dslighting-env/bin/activate  # Linux/Mac
 # 或
 dslighting-env\Scripts\activate  # Windows
 ```
 
+**系统要求:**
+- Python 3.10 或更高版本
+- 推荐使用 Python 3.10 或 3.11
+
 ## 2. 安装 dslighting
 
-确保您拥有 Python 3.9+ 环境，然后通过 `pip` 安装 `dslighting`：
+通过 `pip` 安装 `dslighting`：
 
 ```bash
 pip install dslighting
@@ -124,23 +128,26 @@ if __name__ == "__main__":
     main()
 ```
 
-### 方式 2：使用自定义数据路径
+### 方式 2：使用自定义竞赛数据
 
-使用你自己的数据集：
+使用你自己的 mle-bench 格式竞赛数据：
 
 ```python
 # run_custom.py
 import dslighting
 
 def main():
-    # 配置路径
-    DATA_PATH = "path/to/your/data.csv"
-    REGISTRY_DIR = "./registry"
+    # 配置 mle-bench 格式路径
+    # 数据路径：指向竞赛数据目录
+    DATA_PATH = "/path/to/dslighting/data/competitions/bike-sharing-demand"
 
-    # 加载数据
+    # 注册路径：指向竞赛注册目录
+    REGISTRY_PATH = "/path/to/dslighting/benchmarks/mlebench/competitions"
+
+    # 加载数据（DSLighitng 会自动查找对应的注册配置）
     data = dslighting.load_data(
         DATA_PATH,
-        registry_dir=REGISTRY_DIR
+        registry_dir=REGISTRY_PATH
     )
 
     # 创建 Agent
@@ -158,6 +165,48 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+
+**路径说明:**
+
+DSLighting 使用 mle-bench 格式的竞赛数据结构：
+
+```
+dslighting/
+├── data/
+│   └── competitions/                    # 竞赛数据
+│       ├── bike-sharing-demand/
+│       │   ├── prepared/               # 预处理后的数据
+│       │   │   ├── public/            # 公开数据（train.csv, test.csv）
+│       │   │   └── private/           # 私有数据（test_answer.csv）
+│       │   └── raw/                   # 原始数据
+│       └── mcm_2024_c/
+│
+└── benchmarks/
+    └── mlebench/
+        └── competitions/              # 竞赛注册配置
+            ├── bike-sharing-demand/
+            │   ├── config.yaml        # 竞赛配置
+            │   ├── grade.py           # 评分脚本
+            │   ├── prepare.py         # 数据准备脚本
+            │   ├── description.md     # 竞赛描述
+            │   └── report.md          # 报告模板
+            └── mcm_2024_c/
+```
+
+**关键参数:**
+
+- **`DATA_PATH`**: 指向具体竞赛的数据目录
+  - 例如: `/path/to/dslighting/data/competitions/bike-sharing-demand`
+  - 包含 `prepared/` 和 `raw/` 子目录
+
+- **`REGISTRY_PATH`**: 指向竞赛注册目录的父目录
+  - 例如: `/path/to/dslighting/benchmarks/mlebench/competitions`
+  - DSLighitng 会根据竞赛名称自动查找对应的配置文件
+
+**可用的内置竞赛:**
+- `bike-sharing-demand` - 共享单车需求预测
+- `mcm_2024_c` - MCM 2024 竞赛 C
+- `mcm_2024_c_test` - MCM 2024 测试竞赛
 
 ## 5. 运行脚本
 
@@ -219,13 +268,15 @@ registry/
 
 ### 数据加载参数
 
-- **`DATA_PATH`**: 数据文件路径
-  - 支持 CSV、Excel 等格式
-  - 可以是本地路径或 URL
+- **`DATA_PATH`**: mle-bench 格式的竞赛数据路径
+  - 指向具体竞赛目录，如: `/path/to/data/competitions/bike-sharing-demand`
+  - 包含 `prepared/` 和 `raw/` 子目录
+  - 必须是 mle-bench 标准格式
 
-- **`REGISTRY_DIR`**: Registry 目录路径
-  - 用于存储任务结果和中间文件
-  - 默认: `"./registry"`
+- **`REGISTRY_DIR`**: 竞赛注册配置路径
+  - 指向注册目录的父目录，如: `/path/to/benchmarks/mlebench/competitions`
+  - DSLighitng 会根据竞赛名称自动查找对应的 `config.yaml`
+  - 包含评分脚本、准备脚本等配置文件
 
 ## 8. 高级配置
 
@@ -313,17 +364,21 @@ pip install dslighting
 python quickstart_builtin.py
 ```
 
-### 示例 2：使用自定义数据
+### 示例 2：使用自定义竞赛数据
 
 ```python
 # quickstart_custom.py
 import dslighting
 
 def main():
-    # 加载自定义数据
+    # 配置 mle-bench 格式路径
+    DATA_PATH = "/path/to/dslighting/data/competitions/bike-sharing-demand"
+    REGISTRY_PATH = "/path/to/dslighting/benchmarks/mlebench/competitions"
+
+    # 加载竞赛数据
     data = dslighting.load_data(
-        "path/to/your/data.csv",
-        registry_dir="./registry"
+        DATA_PATH,
+        registry_dir=REGISTRY_PATH
     )
 
     # 创建并运行 Agent
@@ -344,8 +399,15 @@ if __name__ == "__main__":
 ```bash
 pip install dslighting
 # 创建 .env 文件（参考步骤 3）
+# 确保数据路径正确指向 mle-bench 格式目录
 python quickstart_custom.py
 ```
+
+**注意事项:**
+- 确保数据路径符合 mle-bench 标准格式
+- `DATA_PATH` 指向具体竞赛目录（如 `bike-sharing-demand`）
+- `REGISTRY_PATH` 指向竞赛注册目录的父目录
+- DSLighitng 会自动根据竞赛名称匹配配置文件
 
 就这么简单！🚀
 
