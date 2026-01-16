@@ -173,24 +173,32 @@ DSLighting 使用 mle-bench 格式的竞赛数据结构：
 ```
 dslighting/
 ├── data/
-│   └── competitions/                    # 竞赛数据
+│   └── competitions/                          # 竞赛数据目录
 │       ├── bike-sharing-demand/
-│       │   ├── prepared/               # 预处理后的数据
-│       │   │   ├── public/            # 公开数据（train.csv, test.csv）
-│       │   │   └── private/           # 私有数据（test_answer.csv）
-│       │   └── raw/                   # 原始数据
+│       │   ├── prepared/                     # 预处理后的数据
+│       │   │   ├── public/                  # 公开数据（train.csv, test.csv）
+│       │   │   └── private/                 # 私有数据（test_answer.csv）
+│       │   └── raw/                         # 原始数据
+│       │
 │       └── mcm_2024_c/
+│           ├── prepared/
+│           └── raw/
 │
 └── benchmarks/
     └── mlebench/
-        └── competitions/              # 竞赛注册配置
-            ├── bike-sharing-demand/
-            │   ├── config.yaml        # 竞赛配置
-            │   ├── grade.py           # 评分脚本
-            │   ├── prepare.py         # 数据准备脚本
-            │   ├── description.md     # 竞赛描述
-            │   └── report.md          # 报告模板
-            └── mcm_2024_c/
+        └── competitions/                     # 竞赛注册配置目录
+            ├── bike-sharing-demand/         # 每个竞赛都有独立的配置目录
+            │   ├── config.yaml              # 竞赛配置
+            │   ├── grade.py                 # 评分脚本
+            │   ├── prepare.py               # 数据准备脚本
+            │   ├── description.md           # 竞赛描述
+            │   ├── report.md                # 报告模板
+            │   └── leaderboard.csv          # 排行榜
+            │
+            └── mcm_2024_c/                 # 其他竞赛配置
+                ├── config.yaml
+                ├── grade.py
+                └── ...
 ```
 
 **关键参数:**
@@ -202,6 +210,7 @@ dslighting/
 - **`REGISTRY_PATH`**: 指向竞赛注册目录的父目录
   - 例如: `/path/to/dslighting/benchmarks/mlebench/competitions`
   - DSLighitng 会根据竞赛名称自动查找对应的配置文件
+  - 例如：使用 `bike-sharing-demand` 数据时，会查找 `bike-sharing-demand/config.yaml`
 
 **可用的内置竞赛:**
 - `bike-sharing-demand` - 共享单车需求预测
