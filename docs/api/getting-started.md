@@ -413,6 +413,75 @@ agent = dslighting.Agent(
 - 增加 `max_iterations` 进行更深入的分析
 - 设置 `keep_workspace=True` 保留中间结果用于调试
 
+### Q: 为什么显示 "Score: N/A"？
+**A:** 这是 DSLighting 的一个已知问题：自动评分功能当前未启用。
+
+**原因分析:**
+- Agent 执行正常
+- 提交文件生成成功
+- 但自动评分代码未被调用（`self.benchmark` 始终为 `None`）
+- 导致返回 `Score: N/A` 而不是实际分数
+
+**临时解决方案 - 手动评分:**
+
+```python
+# run_with_manual_grade.py
+from dotenv import load_dotenv
+load_dotenv()
+
+import dslighting
+from pathlib import Path
+from mlebench.grade import grade_csv
+from dsat.benchmark.mle import MLEBenchmarkRegistry
+
+def main():
+    # 1. 运行 Agent
+    info = dslighting.datasets.load_bike_sharing_demand()
+    agent = dslighting.Agent(model="glm-4")
+
+    result = agent.run(
+        task_id="bike-sharing-demand",
+        data_dir=str(info['data_dir'].parent)
+    )
+
+    print(f"✅ 任务完成")
+    print(f"✅ Workspace: {result.workspace_path}")
+    print(f"✅ Score: {result.score}")  # None，因为自动评分未运行
+
+    # 2. 手动评分
+    # 获取内置注册表路径
+    registry_dir = Path(dslighting.__file__).parent / "registry"
+    registry = MLEBenchmarkRegistry(registry_dir=str(registry_dir))
+
+    # 获取竞赛
+    competition = registry.get_competition("bike-sharing-demand")
+
+    # 找到提交文件
+    submission_files = list(result.workspace_path.glob("sandbox/submission_*.csv"))
+    if submission_files:
+        submission_path = submission_files[0]
+        print(f"\n📊 提交文件: {submission_path}")
+
+        # 手动评分
+        report = grade_csv(submission_path, competition)
+        print(f"✅ 手动评分完成")
+        print(f"✅ 实际 Score: {report.score}")
+        print(f"✅ 评分方式: {'越低越好' if report.is_lower_better else '越高越好'}")
+    else:
+        print("❌ 未找到提交文件")
+
+if __name__ == "__main__":
+    main()
+```
+
+**说明:**
+- Agent 会正常运行并生成提交文件
+- 使用上述代码可以手动获取实际分数
+- 这不是配置问题，而是 DSLighting 的待修复 bug
+
+**长期解决:**
+等待 DSLighting 官方修复并启用自动评分功能。
+
 ## 10. 完整示例
 
 ### 示例 1：使用默认模型（推荐）
