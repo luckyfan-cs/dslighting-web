@@ -2,41 +2,41 @@
 layout: home
 
 hero:
-  name: "DSLIGHTING"
-  text: "数据科学的智能工作流引擎"
-  tagline: 使用Python和YAML，轻松构建、运行和评估复杂的数据科学任务流。
+  name: DSLIGHTING
+  text: 全流程数据科学智能助手
+  tagline: End-to-End Data Science Intelligent Assistant with Agent Workflows
   image:
     src: logo.png
     alt: DSLIGHTING Logo
   actions:
     - theme: brand
-      text: 快速上手
+      text: 快速开始
       link: /guide/getting-started
-    - theme: alt
-      text: 核心概念
-      link: /guide/core-concepts
     - theme: alt
       text: GitHub 仓库
       link: https://github.com/usail-hkust/dslighting
+    - theme: alt
+      text: 查看演示
+      link: /guide/features
 
 features:
-  - icon: 🛠️
-    title: 声明式的基准测试
-    details: 使用简单的 YAML 文件定义复杂的数据处理、模型训练和评估流程，让代码和配置分离。
   - icon: 🤖
-    title: 可扩展的 Agent 工作流
-    details: 提供 AIDE、AutoMind 等多种内置 Agent，并支持通过继承基类轻松创建自己的 Agent 来实现自定义逻辑。
-  - icon: 🔄
-    title: 内置数据处理与准备
-    details: 提供标准化的数据准备流程，确保实验的可复现性，并支持接入自定义数据源。
-  - icon: 📝
-    title: 详尽的日志与产物追踪
-    details: 自动为每次运行记录详细日志、代码快照和输出产物，便于调试、复盘和结果共享。
-  - icon: 🚀
-    title: 强大的命令行工具
-    details: 通过 `dslighting` 命令即可运行完整的基准测试、管理数据和查看结果，无缝集成到你的 Shell 环境中。
+    title: 智能Agent工作流
+    details: 集成aide、automind、dsagent等多种智能体风格，支持自动选择最优工作流。提供完整的任务规划和执行能力。
   - icon: 📊
-    title: 灵活的配置系统
-    details: 从 LLM 模型到输出目录，所有关键参数均可通过配置文件或命令行参数进行调整，提供极高的灵活性。
+    title: 交互式数据可视化
+    details: 基于Next.js + FastAPI的现代化Web界面，实时监控任务进度，可视化展示分析结果和模型性能。
+  - icon: 🔄
+    title: 元优化框架
+    details: 支持AFlow元优化，自动评估和选择最优工作流，持续提升任务执行效率和准确率。
+  - icon: 🧩
+    title: 可扩展架构
+    details: 灵活的任务注册机制，支持自定义工作流和数据处理流程，轻松扩展新的Agent和Benchmark。
+  - icon: 📝
+    title: 完整日志追踪
+    details: 记录每次运行的完整轨迹和artifacts，支持代码审查、结果复现和性能分析。
+  - icon: 🚀
+    title: 端到端任务执行
+    details: 从数据探索到模型训练，从特征工程到模型评估，全流程自动化执行和评估。
 
 ---
