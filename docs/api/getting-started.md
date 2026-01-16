@@ -4,19 +4,48 @@
 
 ## 1. 创建 Python 环境
 
-首先，创建一个独立的 Python 环境（推荐使用 `venv` 或 `conda`）：
+首先，创建一个独立的 Python 环境（推荐使用 venv 或 conda）：
 
+### 方式 1：使用 venv（推荐）
+
+**Linux / macOS:**
 ```bash
 # 使用 venv 创建虚拟环境（需要 Python 3.10+）
 python3.10 -m venv dslighting-env
-source dslighting-env/bin/activate  # Linux/Mac
-# 或
-dslighting-env\Scripts\activate  # Windows
+source dslighting-env/bin/activate
 ```
+
+**Windows:**
+```bash
+# 使用 venv 创建虚拟环境（需要 Python 3.10+）
+python3.10 -m venv dslighting-env
+dslighting-env\Scripts\activate
+```
+
+---
+
+### 方式 2：使用 Conda
+
+**Linux / macOS / Windows:**
+```bash
+# 创建一个新的 conda 环境
+conda create -n dslighting-env python=3.10
+
+# 激活环境
+conda activate dslighting-env  # Linux/macOS
+# 或
+conda activate dslighting-env  # Windows
+```
+
+---
 
 **系统要求:**
 - Python 3.10 或更高版本
 - 推荐使用 Python 3.10 或 3.11
+
+**推荐工具:**
+- **新手**: Conda（更简单，跨平台一致）
+- **有经验**: venv（Python 内置，更轻量）
 
 ## 2. 安装 dslighting
 
