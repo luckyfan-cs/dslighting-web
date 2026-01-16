@@ -6,7 +6,7 @@ hero:
   text: 全流程数据科学智能助手
   tagline: End-to-End Data Science Intelligent Assistant with Agent Workflows
   image:
-    src: logo.png
+    src: /logo.png
     alt: DSLIGHTING Logo
   actions:
     - theme: brand
