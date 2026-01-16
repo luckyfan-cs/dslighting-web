@@ -1,95 +1,98 @@
-# 快速开始
+# 快速上手
 
-DSLIGHTING 是一个全流程数据科学智能助手系统，采用 Agent 式工作流和可复用的数据布局，为数据科学任务提供端到端的执行、评估和迭代能力。
+欢迎使用 `dslighting`！本指南将引导您在 5 分钟内安装、配置并成功运行您的第一个数据科学任务。
 
-## 系统要求
+我们将以一个最简单的示例开始：使用 `dslighting` 在一个虚拟数据集上运行一次探索性数据分析 (EDA)。
 
-- **Python**: 3.10 或更高版本
-- **Node.js**: 18.x 或更高版本
-- **npm**: 9.x 或更高版本
-- **Git**: 用于版本控制
+## 1. 安装
 
-## 安装步骤
-
-### 1. 克隆仓库
+首先，请确保您拥有 Python 3.9+ 环境，然后通过 `pip` 安装 `dslighting`：
 
 ```bash
-git clone https://github.com/usail-hkust/dslighting.git
-cd dslighting
+pip install dslighting
 ```
 
-### 2. 创建虚拟环境
+## 2. 创建任务配置文件
+
+`dslighting` 使用 YAML 文件来定义任务流程。创建一个名为 `benchmark.yml` 的文件，并填入以下内容：
+
+```yaml
+# benchmark.yml
+name: hello-dslighting-benchmark
+version: '1.0'
+
+# 定义一个简单的任务：执行 EDA
+tasks:
+  - id: hello-eda
+    # 使用 aide 工作流
+    workflow: aide
+    # 定义输入数据（这里我们使用一个内置的虚拟数据集）
+    data:
+      train_path: dslighting.mock.train_csv
+      test_path: dslighting.mock.test_csv
+    # Agent 的目标
+    intent: "Please perform an exploratory data analysis on the provided dataset."
+```
+
+**说明:**
+- **`name`**: 定义了基准测试的名称。
+- **`tasks`**: 一个任务列表，这里我们只定义了一个任务 `hello-eda`。
+- **`workflow`**: 指定执行此任务的 Agent 工作流，我们使用内置的 `aide`。
+- **`data`**: 定义输入数据。`dslighting` 提供了一个 `mock` 模块用于快速测试，无需准备真实数据。
+- **`intent`**: 你希望 Agent 完成的目标。
+
+## 3. 创建并运行 Python 脚本
+
+现在，创建一个名为 `run.py` 的 Python 文件，用于加载并执行我们刚刚定义的任务。
+
+```python
+# run.py
+import dslighting
+
+if __name__ == "__main__":
+    # 设置你的 LLM API 密钥
+    # dslighting.configure(openai_api_key="sk-...")
+
+    # 运行在 benchmark.yml 中定义的任务
+    dslighting.run("benchmark.yml")
+```
+
+**说明:**
+- **`dslighting.configure(...)`**: （可选）如果您的 LLM key 没有配置在环境变量中，可以在代码中进行配置。
+- **`dslighting.run(...)`**: 这是 `dslighting` 的核心函数，它会读取 `benchmark.yml` 文件，并依次执行其中定义的所有任务。
+
+在终端中运行此脚本：
 
 ```bash
-python3.10 -m venv dslighting
-source dslighting/bin/activate  # Windows: dslighting\Scripts\activate
+python run.py
 ```
 
-### 3. 安装依赖
+## 4. 查看结果
 
-```bash
-pip install -r requirements.txt
+脚本运行后，`dslighting` 会在当前目录下创建一个 `output` 文件夹。其结构如下：
+
+```
+output/
+└── hello-dslighting-benchmark/
+    └── 1/  # 运行实例 ID
+        ├── benchmark.yml
+        ├── dslighting.log
+        └── hello-eda/
+            ├── input/
+            ├── artifacts/
+            │   └── eda_report.md
+            └── snapshot/
 ```
 
-### 4. 配置 API 密钥
+- **`dslighting.log`**: 本次运行的完整日志。
+- **`hello-eda/artifacts/eda_report.md`**: `aide` Agent 生成的探索性数据分析报告。
 
-```bash
-cp .env.example .env
-# 编辑 .env 文件，设置你的 API 密钥
-```
-
-DSLighting 支持多种 LLM 提供商：
-
-- **智谱AI** (GLM系列)
-- **硅基流动** (DeepSeek、Qwen等)
-- **OpenAI** (GPT系列)
-
-### 5. 准备数据
-
-使用 [MLE-Bench](https://github.com/openai/mle-bench) 数据集：
-
-```bash
-git clone https://github.com/openai/mle-bench.git
-cd mle-bench
-pip install -e .
-python scripts/prepare.py --competition all
-```
-
-### 6. 运行任务
-
-```bash
-python run_benchmark.py \
-  --workflow aide \
-  --benchmark mle \
-  --data-dir data/competitions \
-  --task-id bike-sharing-demand \
-  --llm-model gpt-4
-```
-
-## 使用 Web UI
-
-我们还提供了现代化的 Web 界面：
-
-### 启动后端
-
-```bash
-cd web_ui/backend
-pip install -r requirements.txt
-python main.py
-```
-
-### 启动前端
-
-```bash
-cd web_ui/frontend
-npm install
-npm run dev
-```
-
-访问 [http://localhost:3000](http://localhost:3000) 查看界面。
+恭喜！您已经成功运行了第一个 `dslighting` 任务。
 
 ## 下一步
 
-- 了解[核心功能](/guide/features)
-- 查看[数据准备指南](/guide/data-preparation)
-- 阅读[配置说明](/guide/configuration)
+现在您已经了解了基本流程，可以继续探索：
+
+- **[核心概念](/guide/core-concepts)**: 深入了解 `dslighting` 的设计哲学。
+- **[教程：运行你的第一个基准测试](/guide/tutorials/first-benchmark)**: 学习如何使用真实数据运行一个完整的机器学习基准测试。
+- **[Python API 参考](/api/python-api)**: 查看 `dslighting.run()` 和其他函数的详细用法。

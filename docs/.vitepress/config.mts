@@ -30,21 +30,27 @@ export default defineConfig({
         {
           text: '指南',
           items: [
-            { text: '快速开始', link: '/guide/getting-started' },
-            { text: '核心功能', link: '/guide/features' },
+            { text: '快速上手', link: '/guide/getting-started' },
+            { text: '核心概念', link: '/guide/core-concepts' },
             { text: '数据准备', link: '/guide/data-preparation' },
             { text: '配置说明', link: '/guide/configuration' },
             { text: '常见问题', link: '/guide/faq' }
+          ]
+        },
+        {
+          text: '教程',
+          items: [
+            { text: '运行你的第一个基准测试', link: '/guide/tutorials/first-benchmark' },
+            { text: '创建自定义 Agent', link: '/guide/tutorials/custom-agent' }
           ]
         }
       ],
       '/api/': [
         {
-          text: 'API 文档',
+          text: 'API 参考',
           items: [
-            { text: '概览', link: '/api/overview' },
-            { text: 'Agent 工作流', link: '/api/agents' },
-            { text: 'Benchmark API', link: '/api/benchmark' }
+            { text: 'Python API', link: '/api/python-api' },
+            { text: '命令行工具 (CLI)', link: '/api/cli' }
           ]
         }
       ]
