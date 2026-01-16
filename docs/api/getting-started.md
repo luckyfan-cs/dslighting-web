@@ -24,28 +24,32 @@ pip install dslighting
 
 ## 3. 配置环境变量
 
-创建一个 `.env` 文件来配置您的 LLM API 密钥和模型参数：
+创建一个 `.env` 文件来配置您的 LLM API 密钥和模型参数。**DSLighting 会自动读取 `.env` 文件，无需额外配置！**
 
 ### .env 文件示例
 
-创建 `.env` 文件并填入以下内容：
+在项目根目录创建 `.env` 文件：
 
 ```bash
 # .env
 
-# LLM 模型配置（JSON 格式）
-LLM_MODEL_CONFIGS='{
-  "gpt-4o": {
-    "api_key": "sk-your-openai-api-key",
-    "api_base": "https://api.openai.com/v1",
-    "temperature": 0.7
-  },
+# 默认模型
+LLM_MODEL="glm-4"
 
+# 默认温度参数
+LLM_TEMPERATURE=0.7
+
+# 默认 API 配置（可选）
+API_KEY="your-default-api-key"
+API_BASE="https://api.openai.com/v1"
+
+# 多模型配置（JSON 格式）
+LLM_MODEL_CONFIGS='{
   "glm-4": {
-    "provider": "openai",
     "api_key": "your-zhipu-api-key-here",
     "api_base": "https://open.bigmodel.cn/api/paas/v4",
-    "temperature": 1.0
+    "temperature": 1.0,
+    "provider": "openai"
   },
 
   "openai/deepseek-ai/DeepSeek-V3": {
@@ -64,64 +68,55 @@ LLM_MODEL_CONFIGS='{
     "temperature": 0.8
   },
 
-  "openai/custom-model-name": {
-    "api_key": "your-custom-api-key",
-    "api_base": "https://your-custom-endpoint.com/v1",
-    "temperature": 1.0
+  "gpt-4o": {
+    "api_key": "sk-your-openai-api-key",
+    "api_base": "https://api.openai.com/v1",
+    "temperature": 0.7
   }
 }'
-
-# 默认使用的模型（可选）
-DEFAULT_MODEL="gpt-4o"
-
-# Registry 目录（用于存储任务结果）
-REGISTRY_DIR="./registry"
 ```
 
 **配置说明:**
 
-- **`LLM_MODEL_CONFIGS`**: JSON 格式的模型配置
-  - 支持多个模型配置
-  - `api_key`: 可以是单个字符串或字符串数组（轮询使用）
+- **`LLM_MODEL`**: 默认使用的模型名称
+- **`LLM_TEMPERATURE`**: 默认温度参数
+- **`LLM_MODEL_CONFIGS`**: JSON 格式的多模型配置
+  - `api_key`: 可以是单个字符串或字符串数组（支持轮询）
   - `api_base`: API 端点地址
   - `temperature`: 模型温度参数（0.0-2.0）
+  - `provider`: 提供商类型（可选）
 
-- **支持的模型提供商**:
-  - OpenAI (GPT-4, GPT-3.5)
-  - 智谱 AI (GLM-4)
-  - SiliconFlow (DeepSeek, Qwen, Kimi 等)
-  - 任何兼容 OpenAI API 的服务
+**支持的模型提供商:**
+- OpenAI (GPT-4, GPT-3.5)
+- 智谱 AI (GLM-4)
+- SiliconFlow (DeepSeek, Qwen, Kimi 等)
+- 任何兼容 OpenAI API 的服务
 
-## 4. 编写运行脚本
+## 4. 运行任务
 
-创建一个名为 `run.py` 的 Python 文件：
+DSLighting 提供两种使用方式：
+
+### 方式 1：使用内置任务（最简单）
+
+直接运行 DSLighting 内置的示例任务：
 
 ```python
 # run.py
-import os
 import dslighting
-from dotenv import load_dotenv
-
-# 加载 .env 文件
-load_dotenv()
 
 def main():
-    # 1. 创建 Agent 实例
+    # 创建 Agent
     agent = dslighting.Agent(
-        workflow="aide",                                    # 使用 aide 工作流
-        model="openai/deepseek-ai/DeepSeek-V3",            # 指定模型
-        temperature=0.7,                                    # 温度参数
-        max_iterations=5,                                   # 最大迭代次数
-        keep_workspace=True                                # 保留工作空间
+        workflow="aide",                              # 使用 aide 工作流
+        model="glm-4",                                # 使用 .env 中配置的模型
+        temperature=0.7,
+        max_iterations=5,
+        keep_workspace=True
     )
 
-    # 2. 加载任务（使用内置的 bike-sharing-demand 示例）
-    task_id = "bike-sharing-demand"
+    # 运行内置任务
+    result = agent.run(task_id="bike-sharing-demand")
 
-    # 3. 运行任务
-    result = agent.run(task_id=task_id)
-
-    # 4. 查看结果
     print(f"✅ 任务完成！")
     print(f"结果: {result}")
 
@@ -129,7 +124,76 @@ if __name__ == "__main__":
     main()
 ```
 
-**API 参数说明:**
+### 方式 2：使用自定义数据路径
+
+使用你自己的数据集：
+
+```python
+# run_custom.py
+import dslighting
+
+def main():
+    # 配置路径
+    DATA_PATH = "path/to/your/data.csv"
+    REGISTRY_DIR = "./registry"
+
+    # 加载数据
+    data = dslighting.load_data(
+        DATA_PATH,
+        registry_dir=REGISTRY_DIR
+    )
+
+    # 创建 Agent
+    agent = dslighting.Agent(
+        model="glm-4",
+        max_iterations=5
+    )
+
+    # 运行任务
+    result = agent.run(data)
+
+    print(f"✅ 任务完成！")
+    print(f"结果: {result}")
+
+if __name__ == "__main__":
+    main()
+```
+
+## 5. 运行脚本
+
+在终端中运行：
+
+```bash
+python run.py
+```
+
+或使用自定义数据：
+
+```bash
+python run_custom.py
+```
+
+## 6. 查看结果
+
+脚本运行后，DSLighting 会在 `REGISTRY_DIR` 指定的目录下创建输出文件：
+
+```
+registry/
+├── tasks/                    # 任务记录
+│   └── bike-sharing-demand/
+│       └── 1/                # 运行实例 ID
+│           ├── input/        # 输入数据
+│           ├── artifacts/     # 生成的结果
+│           │   ├── eda_report.md
+│           │   └── analysis_results.json
+│           ├── snapshot/     # 运行快照
+│           └── task.log      # 任务日志
+└── workspace/                # 工作空间（如果 keep_workspace=True）
+```
+
+## 7. API 参数说明
+
+### Agent 参数
 
 - **`workflow`**: 工作流类型
   - `"aide"`: AI 驱动的探索工作流（推荐用于数据分析）
@@ -138,7 +202,7 @@ if __name__ == "__main__":
 
 - **`model`**: 使用的模型名称
   - 必须与 `.env` 中 `LLM_MODEL_CONFIGS` 定义的模型名称匹配
-  - 例如: `"gpt-4o"`, `"openai/deepseek-ai/DeepSeek-V3"` 等
+  - 例如: `"glm-4"`, `"gpt-4o"`, `"openai/deepseek-ai/DeepSeek-V3"` 等
 
 - **`temperature`**: 模型创造性参数（0.0-2.0）
   - `0.0`: 更确定性，输出更稳定
@@ -153,186 +217,51 @@ if __name__ == "__main__":
   - `True`: 保留中间结果，便于调试
   - `False`: 清理临时文件，节省空间
 
-- **`task_id`**: 任务标识符
-  - 使用内置任务: `"bike-sharing-demand"`, `"titanic"` 等
-  - 或使用自定义数据集路径
+### 数据加载参数
 
-## 5. 配置方式（三种方式可选）
+- **`DATA_PATH`**: 数据文件路径
+  - 支持 CSV、Excel 等格式
+  - 可以是本地路径或 URL
 
-DSLighting 支持三种配置方式，选择最适合你的一种：
+- **`REGISTRY_DIR`**: Registry 目录路径
+  - 用于存储任务结果和中间文件
+  - 默认: `"./registry"`
 
-### 方式 1：使用 .env 文件（推荐）
-
-优点：配置集中，便于管理，适合团队协作
-
-需要安装 `python-dotenv`：
-```bash
-pip install python-dotenv
-```
-
-然后创建 `.env` 文件（如步骤 3 所示）。
-
-### 方式 2：直接在代码中配置（最简单）
-
-优点：无需额外依赖，快速开始
-
-修改 `run.py`：
-
-```python
-# run.py
-import dslighting
-
-def main():
-    # 直接在代码中配置
-    agent = dslighting.Agent(
-        workflow="aide",
-        model="gpt-4o",
-        api_key="sk-your-api-key-here",          # 直接传入 API 密钥
-        api_base="https://api.openai.com/v1",    # 或使用自定义端点
-        temperature=0.7,
-        max_iterations=5
-    )
-
-    result = agent.run(task_id="bike-sharing-demand")
-    print(f"✅ 任务完成！结果: {result}")
-
-if __name__ == "__main__":
-    main()
-```
-
-### 方式 3：使用系统环境变量
-
-优点：适合生产环境，安全性高
-
-在终端中设置环境变量：
-
-```bash
-# Linux/Mac
-export OPENAI_API_KEY="sk-your-api-key-here"
-export API_BASE="https://api.openai.com/v1"
-
-# Windows (PowerShell)
-$env:OPENAI_API_KEY="sk-your-api-key-here"
-$env:API_BASE="https://api.openai.com/v1"
-```
-
-然后运行脚本（DSLighitng 会自动读取环境变量）：
-
-```python
-# run.py
-import dslighting
-
-def main():
-    agent = dslighting.Agent(
-        workflow="aide",
-        model="gpt-4o",
-        temperature=0.7,
-        max_iterations=5
-    )
-
-    result = agent.run(task_id="bike-sharing-demand")
-    print(f"✅ 任务完成！结果: {result}")
-
-if __name__ == "__main__":
-    main()
-```
-
-**推荐选择：**
-- **学习/测试**：方式 2（直接在代码中配置）
-- **开发/团队协作**：方式 1（使用 .env 文件）
-- **生产部署**：方式 3（系统环境变量）
-
-## 6. 运行脚本
-
-在终端中运行此脚本：
-
-```bash
-python run.py
-```
-
-## 7. 查看结果
-
-脚本运行后，`dslighting` 会在 `REGISTRY_DIR` 指定的目录（默认为 `./registry`）下创建输出文件：
-
-```
-registry/
-├── tasks/                # 任务记录
-│   └── bike-sharing-demand/
-│       └── 1/            # 运行实例 ID
-│           ├── input/    # 输入数据
-│           ├── artifacts/ # 生成的结果
-│           │   ├── eda_report.md
-│           │   └── analysis_results.json
-│           ├── snapshot/ # 运行快照
-│           └── task.log  # 任务日志
-└── workspace/            # 工作空间（如果 keep_workspace=True）
-```
-
-- **`task.log`**: 包含完整的运行日志
-- **`artifacts/`**: Agent 生成的分析结果和报告
-- **`workspace/`**: 中间文件和工作数据（如果启用了 `keep_workspace`）
-
-## 8. 使用自定义数据集
-
-如果你想使用自己的数据集：
-
-```python
-import dslighting
-from dotenv import load_dotenv
-
-load_dotenv()
-
-# 创建 Agent
-agent = dslighting.Agent(
-    workflow="aide",
-    model="gpt-4o",
-    temperature=0.7,
-    max_iterations=5
-)
-
-# 使用自定义数据集路径
-result = agent.run(
-    task_id="my-custom-task",       # 自定义任务 ID
-    data_path="path/to/your/data.csv"  # 你的数据文件路径
-)
-
-print(f"结果: {result}")
-```
-
-## 9. 高级配置
+## 8. 高级配置
 
 ### 使用多个 API 密钥（轮询）
 
-```python
-# .env 中配置多个密钥
+在 `.env` 中配置多个密钥，DSLighting 会自动轮询使用：
+
+```bash
 LLM_MODEL_CONFIGS='{
-  "gpt-4o": {
+  "glm-4": {
     "api_key": [
       "sk-key-1",
       "sk-key-2",
       "sk-key-3"
     ],
-    "api_base": "https://api.openai.com/v1"
+    "api_base": "https://open.bigmodel.cn/api/paas/v4"
   }
 }'
 ```
-
-DSLighting 会自动轮询使用这些密钥，实现负载均衡。
 
 ### 自定义 API 端点
 
 ```python
 agent = dslighting.Agent(
-    workflow="aide",
-    model="custom-model",              # 自定义模型名称
-    api_base="https://your-endpoint.com/v1",  # 自定义端点
-    api_key="your-api-key",            # 自定义密钥
+    model="custom-model",
+    api_base="https://your-endpoint.com/v1",
+    api_key="your-api-key",
     temperature=0.7,
     max_iterations=5
 )
 ```
 
-## 常见问题
+## 9. 常见问题
+
+### Q: DSLighting 会自动读取 .env 文件吗？
+**A:** 是的！DSLighting 会自动查找并读取项目根目录下的 `.env` 文件，无需安装 `python-dotenv` 或额外配置。
 
 ### Q: 如何获取 API 密钥？
 - **OpenAI**: https://platform.openai.com/api-keys
@@ -353,63 +282,18 @@ agent = dslighting.Agent(
 - 增加 `max_iterations` 进行更深入的分析
 - 设置 `keep_workspace=True` 保留中间结果用于调试
 
-## 下一步
+## 10. 完整示例
 
-现在您已经了解了基本流程，可以继续探索：
-
-- **[核心概念](./core-concepts)**: 深入了解 `dslighting` 的设计哲学和架构。
-- **[Python API 参考](./python-api)**: 查看 `dslighting` API 的详细文档。
-- **[命令行工具 (CLI)](./cli)**: 学习如何使用命令行工具。
-
-## 完整示例
-
-根据你的需求，选择最适合的一种方式：
-
-### 示例 1：最简单的方式（推荐新手）
-
-无需 .env 文件，直接在代码中配置：
+### 示例 1：使用内置任务（推荐新手）
 
 ```python
-# quickstart_simple.py
+# quickstart_builtin.py
 import dslighting
 
 def main():
     agent = dslighting.Agent(
         workflow="aide",
-        model="gpt-4o",
-        api_key="sk-your-api-key-here",      # 直接配置
-        temperature=0.7,
-        max_iterations=5
-    )
-
-    result = agent.run(task_id="bike-sharing-demand")
-    print(f"✅ 任务完成！结果: {result}")
-
-if __name__ == "__main__":
-    main()
-```
-
-运行：
-```bash
-pip install dslighting
-python quickstart_simple.py
-```
-
-### 示例 2：使用 .env 文件（推荐开发）
-
-适合需要管理多个配置的场景：
-
-```python
-# quickstart_env.py
-import dslighting
-from dotenv import load_dotenv
-
-load_dotenv()  # 加载 .env 文件
-
-def main():
-    agent = dslighting.Agent(
-        workflow="aide",
-        model="gpt-4o",
+        model="glm-4",
         temperature=0.7,
         max_iterations=5,
         keep_workspace=True
@@ -424,42 +308,32 @@ if __name__ == "__main__":
 
 运行：
 ```bash
-pip install dslighting python-dotenv
-# 创建 .env 文件并配置（参考步骤 3）
-python quickstart_env.py
+pip install dslighting
+# 创建 .env 文件（参考步骤 3）
+python quickstart_builtin.py
 ```
 
-### 示例 3：使用环境变量（推荐生产）
-
-适合 Docker 容器或服务器部署：
-
-```bash
-# quickstart_prod.sh
-#!/bin/bash
-
-# 设置环境变量
-export OPENAI_API_KEY="sk-your-api-key-here"
-export API_BASE="https://api.openai.com/v1"
-
-# 运行 Python 脚本
-python quickstart_prod.py
-```
+### 示例 2：使用自定义数据
 
 ```python
-# quickstart_prod.py
+# quickstart_custom.py
 import dslighting
-import os
 
 def main():
-    # DSLighting 会自动读取环境变量
+    # 加载自定义数据
+    data = dslighting.load_data(
+        "path/to/your/data.csv",
+        registry_dir="./registry"
+    )
+
+    # 创建并运行 Agent
     agent = dslighting.Agent(
         workflow="aide",
-        model=os.getenv("MODEL", "gpt-4o"),  # 从环境变量读取
-        temperature=0.7,
+        model="glm-4",
         max_iterations=5
     )
 
-    result = agent.run(task_id="bike-sharing-demand")
+    result = agent.run(data)
     print(f"✅ 任务完成！结果: {result}")
 
 if __name__ == "__main__":
@@ -468,14 +342,17 @@ if __name__ == "__main__":
 
 运行：
 ```bash
-chmod +x quickstart_prod.sh
 pip install dslighting
-./quickstart_prod.sh
+# 创建 .env 文件（参考步骤 3）
+python quickstart_custom.py
 ```
 
-**选择建议：**
-- 快速测试：示例 1
-- 本地开发：示例 2
-- 生产部署：示例 3
-
 就这么简单！🚀
+
+## 下一步
+
+现在您已经了解了基本流程，可以继续探索：
+
+- **[核心概念](./core-concepts)**: 深入了解 `dslighting` 的设计哲学和架构。
+- **[Python API 参考](./python-api)**: 查看 `dslighting` API 的详细文档。
+- **[命令行工具 (CLI)](./cli)**: 学习如何使用命令行工具。
