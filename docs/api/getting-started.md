@@ -217,6 +217,68 @@ dslighting/
 - `mcm_2024_c` - MCM 2024 竞赛 C
 - `mcm_2024_c_test` - MCM 2024 测试竞赛
 
+## 4.5 查看数据结构
+
+DSLighting 提供了与 Agent 一致的数据视角，帮助你在运行任务前了解数据：
+
+```python
+# explore_data.py
+import dslighting
+
+def main():
+    # 配置路径
+    DATA_PATH = "/path/to/dslighting/data/competitions/bike-sharing-demand"
+    REGISTRY_PATH = "/path/to/dslighting/benchmarks/mlebench/competitions"
+
+    # 加载数据
+    data = dslighting.load_data(
+        DATA_PATH,
+        registry_dir=REGISTRY_PATH
+    )
+
+    # 简短查看
+    print(data)
+    # 输出示例: LoadedData(task_id='bike-sharing-demand', task_type='kaggle')
+
+    # 详细查看数据结构和 schema
+    print("\n=== 数据结构详情 ===")
+    print(data.show())
+
+if __name__ == "__main__":
+    main()
+```
+
+**`data.show()` 输出内容:**
+
+- **任务信息**
+  - `task_id`: 任务标识符（如 `bike-sharing-demand`）
+  - `task_type`: 任务类型（如 `kaggle`、`openml`）
+  - `recommended_workflow`: 推荐的工作流类型
+
+- **数据目录结构**
+  - `prepared/public/`: 预处理后的公开数据
+  - `prepared/private/`: 预处理后的私有数据（标签）
+  - `raw/`: 原始数据
+
+- **CSV 文件信息**
+  - 每个文件的列名和数据类型
+  - 文件大小和行数
+  - 特征类型（数值、类别、时间等）
+
+- **任务描述**
+  - 任务目标和要求
+  - 输入输出格式
+  - 评估指标
+
+**为什么这很有用？**
+
+- ✅ 了解 Agent 将如何处理数据
+- ✅ 在运行前验证数据格式正确
+- ✅ 快速理解竞赛要求
+- ✅ 调试数据加载问题
+
+这就是 Agent 看到的数据！通过 `data.show()`，你可以完全理解 Agent 的数据视角。
+
 ## 5. 运行脚本
 
 在终端中运行：
