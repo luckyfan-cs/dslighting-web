@@ -20,15 +20,19 @@ dslighting-env\Scripts\activate  # Windows
 
 ## 2. 安装 dslighting
 
-通过 `pip` 安装 `dslighting`：
+通过 `pip` 安装必要的依赖：
 
 ```bash
-pip install dslighting
+pip install dslighting python-dotenv
 ```
+
+**依赖说明：**
+- `dslighting`: DSLighting 核心包
+- `python-dotenv`: 用于加载 `.env` 配置文件
 
 ## 3. 配置环境变量
 
-创建一个 `.env` 文件来配置您的 LLM API 密钥和模型参数。**DSLighting 会自动读取 `.env` 文件，无需额外配置！**
+创建 `.env` 文件来配置 LLM API 密钥和模型参数。
 
 ### .env 文件示例
 
@@ -37,22 +41,15 @@ pip install dslighting
 ```bash
 # .env
 
-# 默认模型
-LLM_MODEL="glm-4"
-
-# 默认温度参数
-LLM_TEMPERATURE=0.7
-
-# 默认 API 配置（可选）
-API_KEY="your-default-api-key"
-API_BASE="https://api.openai.com/v1"
+# 指定默认使用的模型（必须设置！）
+LLM_MODEL=glm-4
 
 # 多模型配置（JSON 格式）
 LLM_MODEL_CONFIGS='{
   "glm-4": {
-    "api_key": "your-zhipu-api-key-here",
+    "api_key": ["your-key-1", "your-key-2"],
     "api_base": "https://open.bigmodel.cn/api/paas/v4",
-    "temperature": 1.0,
+    "temperature": 0.7,
     "provider": "openai"
   },
 
@@ -82,8 +79,7 @@ LLM_MODEL_CONFIGS='{
 
 **配置说明:**
 
-- **`LLM_MODEL`**: 默认使用的模型名称
-- **`LLM_TEMPERATURE`**: 默认温度参数
+- **`LLM_MODEL`**: 默认使用的模型名称（**必须设置！**）
 - **`LLM_MODEL_CONFIGS`**: JSON 格式的多模型配置
   - `api_key`: 可以是单个字符串或字符串数组（支持轮询）
   - `api_base`: API 端点地址
@@ -100,26 +96,57 @@ LLM_MODEL_CONFIGS='{
 
 DSLighting 提供两种运行方式：
 
-### ✅ 方式 1：直接指定 task_id（推荐）
+### ✅ 方式 1：使用默认模型
 
-最简洁的方式，直接指定任务 ID：
+使用 `.env` 文件中配置的默认模型（`LLM_MODEL`）：
 
 ```python
 # run.py
+from dotenv import load_dotenv
+load_dotenv()  # 必须有！加载 .env 文件
+
 import dslighting
 
 def main():
+    # 不指定 model，自动使用 LLM_MODEL 环境变量
+    agent = dslighting.Agent()
+
+    result = agent.run(
+        task_id="bike-sharing-demand",
+        data_dir="/path/to/dslighting/data/competitions"
+    )
+
+    print(f"✅ 任务完成！")
+    print(f"结果: {result}")
+
+if __name__ == "__main__":
+    main()
+```
+
+---
+
+### 方式 2：运行时指定模型
+
+在创建 Agent 时明确指定使用哪个模型：
+
+```python
+# run.py
+from dotenv import load_dotenv
+load_dotenv()  # 必须有！加载 .env 文件
+
+import dslighting
+
+def main():
+    # 明确指定使用哪个模型
     agent = dslighting.Agent(
-        workflow="aide",
-        model="glm-4",
+        model="openai/deepseek-ai/DeepSeek-V3",
         temperature=0.7,
         max_iterations=5
     )
 
-    # 直接运行
     result = agent.run(
-        task_id="bike-sharing-demand",              # 任务 ID
-        data_dir="/path/to/dslighting/data/competitions"  # 数据目录（可选）
+        task_id="bike-sharing-demand",
+        data_dir="/path/to/dslighting/data/competitions"
     )
 
     print(f"✅ 任务完成！")
@@ -127,69 +154,6 @@ def main():
 
 if __name__ == "__main__":
     main()
-```
-
-**优势：**
-- ✅ 代码简洁
-- ✅ 显式指定 task_id，意图清晰
-- ✅ 自动检查注册表
-- ✅ 更好的错误提示
-
----
-
-### 方式 2：先加载数据，再运行（用于调试）
-
-适合需要先查看数据结构的场景：
-
-```python
-# run.py
-import dslighting
-
-def main():
-    # 1. 先加载数据
-    data = dslighting.load_data(
-        "/path/to/dslighting/data/competitions/bike-sharing-demand",
-        registry_dir="/path/to/dslighting/benchmarks/mlebench/competitions"
-    )
-
-    # 2. 查看数据结构（可选）
-    print(data.show())
-
-    # 3. 创建 Agent 并运行
-    agent = dslighting.Agent(
-        workflow="aide",
-        model="glm-4",
-        max_iterations=5
-    )
-
-    result = agent.run(data)  # 传入 LoadedData 对象
-
-    print(f"✅ 任务完成！")
-    print(f"结果: {result}")
-
-if __name__ == "__main__":
-    main()
-```
-
-**适用场景：**
-- 想先查看数据结构（使用 `data.show()`）
-- 调试数据处理
-- 需要访问 LoadedData 的其他属性
-
----
-
-### 💡 推荐做法
-
-**日常使用：** 用方式 1（简洁）
-```python
-result = agent.run(task_id="bike-sharing-demand")
-```
-
-**调试时：** 先用 `load_data()` 查看数据，再运行
-```python
-data = dslighting.load_data(...)
-print(data.show())  # 查看数据结构
-result = agent.run(data)
 ```
 
 ## 4.5 查看数据结构
@@ -395,8 +359,11 @@ agent = dslighting.Agent(
 
 ## 9. 常见问题
 
-### Q: DSLighting 会自动读取 .env 文件吗？
-**A:** 是的！DSLighting 会自动查找并读取项目根目录下的 `.env` 文件，无需安装 `python-dotenv` 或额外配置。
+### Q: 为什么要使用 `load_dotenv()`？
+**A:** DSLighting 需要 `load_dotenv()` 来加载 `.env` 文件中的配置。必须在导入 `dslighting` 之前调用。
+
+### Q: `LLM_MODEL` 必须设置吗？
+**A:** 是的！`.env` 文件中必须设置 `LLM_MODEL`，指定默认使用的模型。
 
 ### Q: 如何获取 API 密钥？
 - **OpenAI**: https://platform.openai.com/api-keys
@@ -419,16 +386,19 @@ agent = dslighting.Agent(
 
 ## 10. 完整示例
 
-### 示例 1：使用内置任务（推荐新手）
+### 示例 1：使用默认模型（推荐）
 
 ```python
 # quickstart_builtin.py
+from dotenv import load_dotenv
+load_dotenv()  # 必须有！加载 .env 文件
+
 import dslighting
 
 def main():
+    # 使用 .env 中的 LLM_MODEL
     agent = dslighting.Agent(
         workflow="aide",
-        model="glm-4",
         temperature=0.7,
         max_iterations=5,
         keep_workspace=True
@@ -443,36 +413,30 @@ if __name__ == "__main__":
 
 运行：
 ```bash
-pip install dslighting
-# 创建 .env 文件（参考步骤 3）
+pip install dslighting python-dotenv
+# 创建 .env 文件并设置 LLM_MODEL（参考步骤 3）
 python quickstart_builtin.py
 ```
 
-### 示例 2：使用自定义竞赛数据
+### 示例 2：使用指定模型
 
 ```python
-# quickstart_custom.py
+# quickstart_custom_model.py
+from dotenv import load_dotenv
+load_dotenv()  # 必须有！加载 .env 文件
+
 import dslighting
 
 def main():
-    # 配置 mle-bench 格式路径
-    DATA_PATH = "/path/to/dslighting/data/competitions/bike-sharing-demand"
-    REGISTRY_PATH = "/path/to/dslighting/benchmarks/mlebench/competitions"
-
-    # 加载竞赛数据
-    data = dslighting.load_data(
-        DATA_PATH,
-        registry_dir=REGISTRY_PATH
-    )
-
-    # 创建并运行 Agent
+    # 明确指定模型
     agent = dslighting.Agent(
         workflow="aide",
-        model="glm-4",
+        model="openai/deepseek-ai/DeepSeek-V3",  # 指定模型
+        temperature=0.7,
         max_iterations=5
     )
 
-    result = agent.run(data)
+    result = agent.run(task_id="bike-sharing-demand")
     print(f"✅ 任务完成！结果: {result}")
 
 if __name__ == "__main__":
@@ -481,17 +445,10 @@ if __name__ == "__main__":
 
 运行：
 ```bash
-pip install dslighting
-# 创建 .env 文件（参考步骤 3）
-# 确保数据路径正确指向 mle-bench 格式目录
-python quickstart_custom.py
+pip install dslighting python-dotenv
+# 创建 .env 文件并配置模型（参考步骤 3）
+python quickstart_custom_model.py
 ```
-
-**注意事项:**
-- 确保数据路径符合 mle-bench 标准格式
-- `DATA_PATH` 指向具体竞赛目录（如 `bike-sharing-demand`）
-- `REGISTRY_PATH` 指向竞赛注册目录的父目录
-- DSLighitng 会自动根据竞赛名称匹配配置文件
 
 就这么简单！🚀
 
