@@ -28,6 +28,10 @@ npm run docs:build
 
 每次推送到 `main` 分支时，会自动通过 GitHub Actions 部署到 GitHub Pages。
 
+## 🔧 故障排除
+
+如果遇到部署问题，请参考 [故障排除指南](./TROUBLESHOOTING.md)。
+
 ## 📄 许可证
 
 AGPL-3.0
