@@ -6,7 +6,7 @@
 
 ## 1. 安装
 
-首先，请确保您拥有 Python 3.9+ 环境，然后通过 `pip` 安装 `dslighting`：
+首先，请确保您拥有 Python 3.9+ 环境。然后，在您的终端中通过 `pip` 安装 `dslighting`：
 
 ```bash
 pip install dslighting
