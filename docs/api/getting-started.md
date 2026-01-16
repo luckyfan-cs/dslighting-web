@@ -157,13 +157,90 @@ if __name__ == "__main__":
   - 使用内置任务: `"bike-sharing-demand"`, `"titanic"` 等
   - 或使用自定义数据集路径
 
-## 5. 安装依赖
+## 5. 配置方式（三种方式可选）
 
-如果使用了 `.env` 文件，需要安装 `python-dotenv`：
+DSLighting 支持三种配置方式，选择最适合你的一种：
 
+### 方式 1：使用 .env 文件（推荐）
+
+优点：配置集中，便于管理，适合团队协作
+
+需要安装 `python-dotenv`：
 ```bash
 pip install python-dotenv
 ```
+
+然后创建 `.env` 文件（如步骤 3 所示）。
+
+### 方式 2：直接在代码中配置（最简单）
+
+优点：无需额外依赖，快速开始
+
+修改 `run.py`：
+
+```python
+# run.py
+import dslighting
+
+def main():
+    # 直接在代码中配置
+    agent = dslighting.Agent(
+        workflow="aide",
+        model="gpt-4o",
+        api_key="sk-your-api-key-here",          # 直接传入 API 密钥
+        api_base="https://api.openai.com/v1",    # 或使用自定义端点
+        temperature=0.7,
+        max_iterations=5
+    )
+
+    result = agent.run(task_id="bike-sharing-demand")
+    print(f"✅ 任务完成！结果: {result}")
+
+if __name__ == "__main__":
+    main()
+```
+
+### 方式 3：使用系统环境变量
+
+优点：适合生产环境，安全性高
+
+在终端中设置环境变量：
+
+```bash
+# Linux/Mac
+export OPENAI_API_KEY="sk-your-api-key-here"
+export API_BASE="https://api.openai.com/v1"
+
+# Windows (PowerShell)
+$env:OPENAI_API_KEY="sk-your-api-key-here"
+$env:API_BASE="https://api.openai.com/v1"
+```
+
+然后运行脚本（DSLighitng 会自动读取环境变量）：
+
+```python
+# run.py
+import dslighting
+
+def main():
+    agent = dslighting.Agent(
+        workflow="aide",
+        model="gpt-4o",
+        temperature=0.7,
+        max_iterations=5
+    )
+
+    result = agent.run(task_id="bike-sharing-demand")
+    print(f"✅ 任务完成！结果: {result}")
+
+if __name__ == "__main__":
+    main()
+```
+
+**推荐选择：**
+- **学习/测试**：方式 2（直接在代码中配置）
+- **开发/团队协作**：方式 1（使用 .env 文件）
+- **生产部署**：方式 3（系统环境变量）
 
 ## 6. 运行脚本
 
@@ -286,17 +363,50 @@ agent = dslighting.Agent(
 
 ## 完整示例
 
-将所有步骤整合在一起：
+根据你的需求，选择最适合的一种方式：
+
+### 示例 1：最简单的方式（推荐新手）
+
+无需 .env 文件，直接在代码中配置：
 
 ```python
+# quickstart_simple.py
+import dslighting
+
+def main():
+    agent = dslighting.Agent(
+        workflow="aide",
+        model="gpt-4o",
+        api_key="sk-your-api-key-here",      # 直接配置
+        temperature=0.7,
+        max_iterations=5
+    )
+
+    result = agent.run(task_id="bike-sharing-demand")
+    print(f"✅ 任务完成！结果: {result}")
+
+if __name__ == "__main__":
+    main()
+```
+
+运行：
+```bash
+pip install dslighting
+python quickstart_simple.py
+```
+
+### 示例 2：使用 .env 文件（推荐开发）
+
+适合需要管理多个配置的场景：
+
+```python
+# quickstart_env.py
 import dslighting
 from dotenv import load_dotenv
 
-# 加载环境变量
-load_dotenv()
+load_dotenv()  # 加载 .env 文件
 
 def main():
-    # 创建 Agent
     agent = dslighting.Agent(
         workflow="aide",
         model="gpt-4o",
@@ -305,26 +415,67 @@ def main():
         keep_workspace=True
     )
 
-    # 运行任务
     result = agent.run(task_id="bike-sharing-demand")
-
-    print(f"✅ 任务完成！")
-    print(f"结果: {result}")
+    print(f"✅ 任务完成！结果: {result}")
 
 if __name__ == "__main__":
     main()
 ```
 
-保存为 `quickstart.py` 并运行：
+运行：
+```bash
+pip install dslighting python-dotenv
+# 创建 .env 文件并配置（参考步骤 3）
+python quickstart_env.py
+```
+
+### 示例 3：使用环境变量（推荐生产）
+
+适合 Docker 容器或服务器部署：
 
 ```bash
-# 安装依赖
-pip install dslighting python-dotenv
+# quickstart_prod.sh
+#!/bin/bash
 
-# 配置 .env 文件（参考上面的示例）
+# 设置环境变量
+export OPENAI_API_KEY="sk-your-api-key-here"
+export API_BASE="https://api.openai.com/v1"
 
-# 运行
-python quickstart.py
+# 运行 Python 脚本
+python quickstart_prod.py
 ```
+
+```python
+# quickstart_prod.py
+import dslighting
+import os
+
+def main():
+    # DSLighting 会自动读取环境变量
+    agent = dslighting.Agent(
+        workflow="aide",
+        model=os.getenv("MODEL", "gpt-4o"),  # 从环境变量读取
+        temperature=0.7,
+        max_iterations=5
+    )
+
+    result = agent.run(task_id="bike-sharing-demand")
+    print(f"✅ 任务完成！结果: {result}")
+
+if __name__ == "__main__":
+    main()
+```
+
+运行：
+```bash
+chmod +x quickstart_prod.sh
+pip install dslighting
+./quickstart_prod.sh
+```
+
+**选择建议：**
+- 快速测试：示例 1
+- 本地开发：示例 2
+- 生产部署：示例 3
 
 就这么简单！🚀
