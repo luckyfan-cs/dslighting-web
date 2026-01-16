@@ -98,28 +98,29 @@ LLM_MODEL_CONFIGS='{
 
 ## 4. 运行任务
 
-DSLighting 提供两种使用方式：
+DSLighting 提供两种运行方式：
 
-### 方式 1：使用内置任务（最简单）
+### ✅ 方式 1：直接指定 task_id（推荐）
 
-直接运行 DSLighting 内置的示例任务：
+最简洁的方式，直接指定任务 ID：
 
 ```python
 # run.py
 import dslighting
 
 def main():
-    # 创建 Agent
     agent = dslighting.Agent(
-        workflow="aide",                              # 使用 aide 工作流
-        model="glm-4",                                # 使用 .env 中配置的模型
+        workflow="aide",
+        model="glm-4",
         temperature=0.7,
-        max_iterations=5,
-        keep_workspace=True
+        max_iterations=5
     )
 
-    # 运行内置任务
-    result = agent.run(task_id="bike-sharing-demand")
+    # 直接运行
+    result = agent.run(
+        task_id="bike-sharing-demand",              # 任务 ID
+        data_dir="/path/to/dslighting/data/competitions"  # 数据目录（可选）
+    )
 
     print(f"✅ 任务完成！")
     print(f"结果: {result}")
@@ -128,7 +129,70 @@ if __name__ == "__main__":
     main()
 ```
 
-### 方式 2：使用自定义竞赛数据
+**优势：**
+- ✅ 代码简洁
+- ✅ 显式指定 task_id，意图清晰
+- ✅ 自动检查注册表
+- ✅ 更好的错误提示
+
+---
+
+### 方式 2：先加载数据，再运行（用于调试）
+
+适合需要先查看数据结构的场景：
+
+```python
+# run.py
+import dslighting
+
+def main():
+    # 1. 先加载数据
+    data = dslighting.load_data(
+        "/path/to/dslighting/data/competitions/bike-sharing-demand",
+        registry_dir="/path/to/dslighting/benchmarks/mlebench/competitions"
+    )
+
+    # 2. 查看数据结构（可选）
+    print(data.show())
+
+    # 3. 创建 Agent 并运行
+    agent = dslighting.Agent(
+        workflow="aide",
+        model="glm-4",
+        max_iterations=5
+    )
+
+    result = agent.run(data)  # 传入 LoadedData 对象
+
+    print(f"✅ 任务完成！")
+    print(f"结果: {result}")
+
+if __name__ == "__main__":
+    main()
+```
+
+**适用场景：**
+- 想先查看数据结构（使用 `data.show()`）
+- 调试数据处理
+- 需要访问 LoadedData 的其他属性
+
+---
+
+### 💡 推荐做法
+
+**日常使用：** 用方式 1（简洁）
+```python
+result = agent.run(task_id="bike-sharing-demand")
+```
+
+**调试时：** 先用 `load_data()` 查看数据，再运行
+```python
+data = dslighting.load_data(...)
+print(data.show())  # 查看数据结构
+result = agent.run(data)
+```
+
+## 4.5 查看数据结构
 
 使用你自己的 mle-bench 格式竞赛数据：
 
@@ -166,58 +230,7 @@ if __name__ == "__main__":
     main()
 ```
 
-**路径说明:**
-
-DSLighting 使用 mle-bench 格式的竞赛数据结构：
-
-```
-dslighting/
-├── data/
-│   └── competitions/                          # 竞赛数据目录
-│       ├── bike-sharing-demand/
-│       │   ├── prepared/                     # 预处理后的数据
-│       │   │   ├── public/                  # 公开数据（train.csv, test.csv）
-│       │   │   └── private/                 # 私有数据（test_answer.csv）
-│       │   └── raw/                         # 原始数据
-│       │
-│       └── mcm_2024_c/
-│           ├── prepared/
-│           └── raw/
-│
-└── benchmarks/
-    └── mlebench/
-        └── competitions/                     # 竞赛注册配置目录
-            ├── bike-sharing-demand/         # 每个竞赛都有独立的配置目录
-            │   ├── config.yaml              # 竞赛配置
-            │   ├── grade.py                 # 评分脚本
-            │   ├── prepare.py               # 数据准备脚本
-            │   ├── description.md           # 竞赛描述
-            │   ├── report.md                # 报告模板
-            │   └── leaderboard.csv          # 排行榜
-            │
-            └── mcm_2024_c/                 # 其他竞赛配置
-                ├── config.yaml
-                ├── grade.py
-                └── ...
-```
-
-**关键参数:**
-
-- **`DATA_PATH`**: 指向具体竞赛的数据目录
-  - 例如: `/path/to/dslighting/data/competitions/bike-sharing-demand`
-  - 包含 `prepared/` 和 `raw/` 子目录
-
-- **`REGISTRY_PATH`**: 指向竞赛注册目录的父目录
-  - 例如: `/path/to/dslighting/benchmarks/mlebench/competitions`
-  - DSLighitng 会根据竞赛名称自动查找对应的配置文件
-  - 例如：使用 `bike-sharing-demand` 数据时，会查找 `bike-sharing-demand/config.yaml`
-
-**可用的内置竞赛:**
-- `bike-sharing-demand` - 共享单车需求预测
-- `mcm_2024_c` - MCM 2024 竞赛 C
-- `mcm_2024_c_test` - MCM 2024 测试竞赛
-
-## 4.5 查看数据结构
+## 4.5 查看数据结构（可选）
 
 DSLighting 提供了与 Agent 一致的数据视角，帮助你在运行任务前了解数据：
 
