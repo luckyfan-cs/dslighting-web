@@ -28,6 +28,9 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
+      - name: Force clean node_modules
+        run: rm -rf node_modules
+
       - name: Clean npm cache
         run: npm cache clean --force
 
