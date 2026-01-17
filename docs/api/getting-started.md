@@ -357,6 +357,131 @@ registry/
 
 ## 8. 高级配置
 
+### 自定义任务配置
+
+除了使用 DSLighting 内置的任务外，您还可以创建自己的数据科学任务。自定义任务需要准备两部分：**数据集** + **注册配置**。
+
+#### 完整目录结构
+
+```
+your-project/
+├── data/                          # 数据集目录
+│   └── competitions/
+│       └── your-task-name/        # 任务数据
+│           └── prepared/          # 数据文件
+│               ├── public/        # 公开数据
+│               │   ├── train.csv
+│               │   ├── test.csv
+│               │   └── sampleSubmission.csv
+│               └── private/       # 私有数据（评分用）
+│                   └── test_answer.csv
+│
+└── registry/                      # 任务注册目录（必须）
+    └── your-task-name/            # 与数据集同名
+        ├── config.yaml            # ⚠️ 任务配置（必须）
+        ├── description.md         # ⚠️ 任务描述（必须）
+        └── grade.py               # 评分脚本（可选）
+```
+
+#### 文件说明
+
+**1. 数据集文件（必须）**
+
+| 文件                 | 位置              | 说明                         |
+|----------------------|-------------------|------------------------------|
+| train.csv            | prepared/public/  | 必须：训练数据（特征+标签）  |
+| test.csv             | prepared/public/  | 必须：测试数据（仅特征）     |
+| sampleSubmission.csv | prepared/public/  | 必须：提交格式示例           |
+| test_answer.csv      | prepared/private/ | 必须：测试集答案（用于评分） |
+
+**2. 注册配置文件（必须）**
+
+| 文件           | 说明                         |
+|----------------|------------------------------|
+| config.yaml    | 必须：任务配置和评分指标     |
+| description.md | 必须：任务描述和评估指标说明 |
+| grade.py       | 可选：自定义评分脚本         |
+
+#### 配置文件模板
+
+**registry/your-task-name/config.yaml**（必须）
+
+```yaml
+id: your-task-name
+name: Your Task Display Name
+competition_type: simple
+awards_medals: false
+description: your-task-name/description.md
+
+dataset:
+  answers: your-task-name/prepared/private/test_answer.csv
+  sample_submission: your-task-name/prepared/public/sampleSubmission.csv
+
+grader:
+  name: rmsle                    # 评分指标（必须）
+```
+
+**常用评分指标：**
+- **回归任务**：`rmsle`, `mse`, `mae`, `rmse`
+- **分类任务**：`accuracy`, `f1`, `auc`, `logloss`
+- **其他**：`map` (平均精度), `ndcg` 等
+
+**registry/your-task-name/description.md**（必须）
+
+```markdown
+# Your Task Name
+
+## Description
+[任务背景和目标描述]
+
+## Evaluation
+[评估指标说明]
+```
+
+**示例：**
+
+```markdown
+# Bike Sharing Demand
+
+## Description
+预测自行车租赁需求。基于历史使用模式和天气数据，预测华盛顿特区自行车共享计划的租赁需求。
+
+## Evaluation
+使用 RMSLE（均方根对数误差）评估：
+$\sqrt{\frac{1}{n} \sum_{i=1}^n (\log(p_i + 1) - \log(a_i + 1))^2}$
+```
+
+#### 运行自定义任务
+
+配置完成后，使用与内置任务相同的方式运行：
+
+```python
+from dotenv import load_dotenv
+load_dotenv()
+
+import dslighting
+
+def main():
+    agent = dslighting.Agent(model="glm-4")
+
+    result = agent.run(
+        task_id="your-task-name",
+        data_dir="/path/to/your-project/data/competitions",
+        registry_dir="/path/to/your-project/registry"
+    )
+
+    print(f"✅ 自定义任务完成！")
+    print(f"结果: {result}")
+
+if __name__ == "__main__":
+    main()
+```
+
+**参数说明：**
+- `task_id`: 任务标识符（与 registry 中的目录名一致）
+- `data_dir`: 数据集目录的父路径
+- `registry_dir`: 注册配置目录的路径
+
 ### 使用多个 API 密钥（轮询）
 
 在 `.env` 中配置多个密钥，DSLighting 会自动轮询使用：
