@@ -44,7 +44,7 @@ load_dotenv()  # 从当前目录加载 .env 文件
 import dslighting
 
 # 加载数据
-data = dslighting.load_data("bike-sharing-demand")
+data = dslighting.load_data("/path/to/your/data")
 
 # 创建 AIDE Agent
 agent = dslighting.Agent(
@@ -71,7 +71,7 @@ load_dotenv()
 
 import dslighting
 
-data = dslighting.load_data("bike-sharing-demand")
+data = dslighting.load_data("/path/to/your/data")
 
 agent = dslighting.Agent(
     workflow="aide",
@@ -117,7 +117,7 @@ load_dotenv()
 
 import dslighting
 
-data = dslighting.load_data("bike-sharing-demand")
+data = dslighting.load_data("/path/to/your/data")
 
 agent = dslighting.Agent(
     workflow="autokaggle",
@@ -264,7 +264,7 @@ load_dotenv()
 
 import dslighting
 
-data = dslighting.load_data("sales_data.csv")
+data = dslighting.load_data("/path/to/your/data")
 
 agent = dslighting.Agent(
     workflow="data_interpreter",
@@ -273,7 +273,7 @@ agent = dslighting.Agent(
     max_iterations=5,
 )
 
-result = agent.run(data, description="分析销售趋势")
+result = agent.run(data)
 
 print(f"Output: {result.output}")
 print(f"Cost: ${result.cost:.2f}")
@@ -310,7 +310,7 @@ load_dotenv()
 
 import dslighting
 
-data = dslighting.load_data("bike-sharing-demand")
+data = dslighting.load_data("/path/to/your/data")
 
 agent = dslighting.Agent(
     workflow="automind",
@@ -401,7 +401,7 @@ load_dotenv()
 
 import dslighting
 
-data = dslighting.load_data("bike-sharing-demand")
+data = dslighting.load_data("/path/to/your/data")
 
 agent = dslighting.Agent(
     workflow="dsagent",
@@ -480,7 +480,7 @@ load_dotenv()
 
 import dslighting
 
-data = dslighting.load_data("your_data.csv")
+data = dslighting.load_data("/path/to/your/data")
 
 agent = dslighting.Agent(
     workflow="deepanalyze",
@@ -489,7 +489,7 @@ agent = dslighting.Agent(
     max_iterations=10,
 )
 
-result = agent.run(data, description="深度分析数据")
+result = agent.run(data)
 
 print(f"Analysis: {result.output}")
 print(f"Cost: ${result.cost:.2f}")
@@ -590,7 +590,7 @@ load_dotenv()
 
 import dslighting
 
-data = dslighting.load_data("bike-sharing-demand")
+data = dslighting.load_data("/path/to/your/data")
 
 agent = dslighting.Agent(
     workflow="aide",
@@ -611,7 +611,7 @@ load_dotenv()
 
 import dslighting
 
-data = dslighting.load_data("bike-sharing-demand")
+data = dslighting.load_data("/path/to/your/data")
 
 agent = dslighting.Agent(
     workflow="autokaggle",
@@ -633,7 +633,7 @@ load_dotenv()
 
 import dslighting
 
-data = dslighting.load_data("sales_data.csv")
+data = dslighting.load_data("/path/to/your/data")
 
 agent = dslighting.Agent(
     workflow="data_interpreter",
@@ -653,7 +653,7 @@ load_dotenv()
 
 import dslighting
 
-data = dslighting.load_data("bike-sharing-demand")
+data = dslighting.load_data("/path/to/your/data")
 
 agent = dslighting.Agent(
     workflow="automind",
@@ -674,7 +674,7 @@ load_dotenv()
 
 import dslighting
 
-data = dslighting.load_data("bike-sharing-demand")
+data = dslighting.load_data("/path/to/your/data")
 
 agent = dslighting.Agent(
     workflow="dsagent",
