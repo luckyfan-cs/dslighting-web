@@ -43,6 +43,7 @@ export default defineConfig({
           items: [
             { text: '快速上手', link: '/api/getting-started' },
             { text: '核心概念', link: '/api/core-concepts' },
+            { text: '数据系统', link: '/api/data-system' },
           ]
         },
         {
