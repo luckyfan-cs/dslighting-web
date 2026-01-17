@@ -4,16 +4,16 @@ DSLighting 的数据系统是其核心基础设施，负责统一管理数据集
 
 ## 目录
 
-- [4.1 核心数据流](#41-核心数据流)
-- [4.2 设计原则](#42-设计原则)
-- [4.3 核心组件](#43-核心组件)
-- [4.4 文件系统规范](#44-文件系统规范)
-- [4.5 使用示例](#45-使用示例)
-- [4.6 最佳实践](#46-最佳实践)
+- [1. 核心数据流](#1-核心数据流)
+- [2. 设计原则](#2-设计原则)
+- [3. 核心组件](#3-核心组件)
+- [4. 文件系统规范](#4-文件系统规范)
+- [5. 使用示例](#5-使用示例)
+- [6. 最佳实践](#6-最佳实践)
 
 ---
 
-## 4.1 核心数据流
+## 1. 核心数据流
 
 ```
 原始文件系统
@@ -61,7 +61,7 @@ Agent 消费
 
 ---
 
-## 4.2 设计原则
+## 2. 设计原则
 
 | 原则 | 说明 |
 |------|------|
@@ -72,9 +72,9 @@ Agent 消费
 
 ---
 
-## 4.3 核心组件
+## 3. 核心组件
 
-### 4.3.1 LoadedData - 数据对象
+### 3.1 LoadedData - 数据对象
 
 `LoadedData` 是 DSLighting 的**核心数据容器**，它封装了：
 - 数据集路径信息
@@ -149,7 +149,7 @@ io_instructions = data.get_io_instructions()
 
 ---
 
-### 4.3.2 TaskDetection - 任务类型识别
+### 3.2 TaskDetection - 任务类型识别
 
 `TaskDetection` 负责自动识别任务类型，无需用户手动指定。
 
@@ -204,7 +204,7 @@ class TaskDetection:
 
 ---
 
-### 4.3.3 Registry - 注册配置
+### 3.3 Registry - 注册配置
 
 `Registry` 负责加载和管理任务的注册配置，包括：
 - `config.yaml` - 任务配置（必需）
@@ -265,7 +265,7 @@ grader:
 
 ---
 
-### 4.3.4 DataLoader - 数据加载器
+### 3.4 DataLoader - 数据加载器
 
 `DataLoader` 负责从文件系统加载数据并创建 `LoadedData` 对象。
 
@@ -305,9 +305,9 @@ data = loader.load(
 
 ---
 
-## 4.4 文件系统规范
+## 4. 文件系统规范
 
-### 4.4.1 数据目录结构
+### 4.1 数据目录结构
 
 ```
 data/competitions/my-task/prepared/
@@ -329,7 +329,7 @@ data/competitions/my-task/prepared/
 | `sampleSubmission.csv` | CSV | 包含ID和预测列，格式与提交格式一致 |
 | `test_answer.csv` | CSV | 包含真实标签，用于评估 |
 
-### 4.4.2 注册目录结构
+### 4.2 注册目录结构
 
 ```
 registry/my-task/
@@ -356,9 +356,9 @@ registry/my-task/
 
 ---
 
-## 4.5 使用示例
+## 5. 使用示例
 
-### 4.5.1 基础使用
+### 5.1 基础使用
 
 ```python
 import dslighting
@@ -379,7 +379,7 @@ print(data.get_description())
 print(f"Task Type: {data.get_task_type()}")
 ```
 
-### 4.5.2 访问数据文件
+### 5.2 访问数据文件
 
 ```python
 import pandas as pd
@@ -397,7 +397,7 @@ print(f"Train shape: {train_df.shape}")
 print(f"Test shape: {test_df.shape}")
 ```
 
-### 4.5.3 获取配置信息
+### 5.3 获取配置信息
 
 ```python
 # 获取评估指标
@@ -413,7 +413,7 @@ awards_medals = data.registry.get_awards_medals()
 print(f"Awards Medals: {awards_medals}")
 ```
 
-### 4.5.4 不同任务类型的处理
+### 5.4 不同任务类型的处理
 
 ```python
 # Kaggle 类型
@@ -434,9 +434,9 @@ elif data.task_detection.is_datasci:
 
 ---
 
-## 4.6 最佳实践
+## 6. 最佳实践
 
-### 4.6.1 路径配置（v1.8.0+）
+### 6.1 路径配置（v1.8.0+）
 
 ```python
 # ✅ 推荐：使用全局配置（多任务项目）
@@ -462,7 +462,7 @@ data = dslighting.load_data(
 )
 ```
 
-### 4.6.2 数据检查流程
+### 6.2 数据检查流程
 
 ```python
 import dslighting
@@ -489,7 +489,7 @@ agent = dslighting.Agent()
 result = agent.run(data)
 ```
 
-### 4.6.3 错误处理
+### 6.3 错误处理
 
 ```python
 from pathlib import Path
