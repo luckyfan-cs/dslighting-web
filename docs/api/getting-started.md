@@ -123,11 +123,11 @@ LLM_MODEL_CONFIGS='{
 
 ## 4. 运行任务
 
-DSLighting 提供两种运行方式：
+DSLighting 提供两种运行方式，根据你的需求选择：
 
-### ✅ 方式 1：使用默认模型
+### ✅ 方式 1：使用 task_id + data_dir（推荐）
 
-使用 `.env` 文件中配置的默认模型（`LLM_MODEL`）：
+**最简洁的方式，适合快速运行任务：**
 
 ```python
 # run.py
@@ -137,12 +137,12 @@ load_dotenv()  # 必须有！加载 .env 文件
 import dslighting
 
 def main():
-    # 不指定 model，自动使用 LLM_MODEL 环境变量
     agent = dslighting.Agent()
 
+    # data_dir 指向父目录，task_id 指定具体任务
     result = agent.run(
-        task_id="bike-sharing-demand",
-        data_dir="/path/to/dslighting/data/competitions"
+        task_id="bike-sharing-demand",  # 任务名称
+        data_dir="/path/to/dslighting/data/competitions"  # 父目录
     )
 
     print(f"✅ 任务完成！")
@@ -151,69 +151,40 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+
+**DSLighting 会自动：**
+1. 拼接路径：`data_dir + task_id` = `/path/to/dslighting/data/competitions/bike-sharing-demand`
+2. 自动检测 `registry_dir`（查找 `benchmarks/mlebench/competitions`）
+
+**优点：**
+- ✅ 更简洁，一步到位
+- ✅ 自动检测 registry_dir
+- ✅ 符合 DSLighting 的智能 API 设计
 
 ---
 
-### 方式 2：运行时指定模型
+### 方式 2：先 load_data 再运行（灵活）
 
-在创建 Agent 时明确指定使用哪个模型：
-
-```python
-# run.py
-from dotenv import load_dotenv
-load_dotenv()  # 必须有！加载 .env 文件
-
-import dslighting
-
-def main():
-    # 明确指定使用哪个模型
-    agent = dslighting.Agent(
-        model="openai/deepseek-ai/DeepSeek-V3",
-        temperature=0.7,
-        max_iterations=5
-    )
-
-    result = agent.run(
-        task_id="bike-sharing-demand",
-        data_dir="/path/to/dslighting/data/competitions"
-    )
-
-    print(f"✅ 任务完成！")
-    print(f"结果: {result}")
-
-if __name__ == "__main__":
-    main()
-```
-
-## 4.5 查看数据结构
-
-使用你自己的 mle-bench 格式竞赛数据：
+**适合需要检查数据或自定义 registry_dir 的场景：**
 
 ```python
 # run_custom.py
+from dotenv import load_dotenv
+load_dotenv()
+
 import dslighting
 
 def main():
-    # 配置 mle-bench 格式路径
-    # 数据路径：指向竞赛数据目录
-    DATA_PATH = "/path/to/dslighting/data/competitions/bike-sharing-demand"
-
-    # 注册路径：指向竞赛注册目录
-    REGISTRY_PATH = "/path/to/dslighting/benchmarks/mlebench/competitions"
-
-    # 加载数据（DSLighitng 会自动查找对应的注册配置）
+    # 1. 先加载数据（完整路径）
     data = dslighting.load_data(
-        DATA_PATH,
-        registry_dir=REGISTRY_PATH
+        "/path/to/dslighting/data/competitions/bike-sharing-demand",  # 完整任务路径
+        registry_dir="/path/to/dslighting/benchmarks/mlebench/competitions"  # 显式指定
     )
 
-    # 创建 Agent
-    agent = dslighting.Agent(
-        model="glm-4",
-        max_iterations=5
-    )
+    # 2. 创建 Agent
+    agent = dslighting.Agent()
 
-    # 运行任务
+    # 3. 运行任务（传入 LoadedData 对象）
     result = agent.run(data)
 
     print(f"✅ 任务完成！")
@@ -223,12 +194,83 @@ if __name__ == "__main__":
     main()
 ```
 
-## 4.5 查看数据结构（可选）
+**优点：**
+- ✅ 可以在运行前检查数据结构：`print(data.show())`
+- ✅ 适合 registry_dir 不在标准位置的情况
+- ✅ 更灵活，可以对数据做预处理
+
+---
+
+### 实际场景对比
+
+**场景 1：快速测试（用方式 1）**
+
+```python
+from dotenv import load_dotenv
+load_dotenv()
+
+import dslighting
+
+# 一行代码搞定
+result = dslighting.Agent().run(
+    task_id="bike-sharing-demand",
+    data_dir="data/competitions"
+)
+```
+
+**场景 2：需要先检查数据（用方式 2）**
+
+```python
+from dotenv import load_dotenv
+load_dotenv()
+
+import dslighting
+
+# 先加载数据并检查
+data = dslighting.load_data(
+    "data/competitions/bike-sharing-demand",
+    registry_dir="registry"
+)
+
+# 查看数据结构
+print(data.show())
+# 输出：
+# Task ID: bike-sharing-demand
+# Task Type: kaggle
+# Public dir: .../prepared/public
+#   📄 train.csv (12 columns)
+#   📄 test.csv (9 columns)
+# ...
+
+# 确认无误后再运行
+agent = dslighting.Agent()
+result = agent.run(data)
+```
+
+---
+
+### 如何选择？
+
+| 场景 | 推荐方式 | 代码 |
+|------|----------|------|
+| 快速运行 | 方式 1 | `agent.run(task_id="xxx", data_dir="xxx")` |
+| 数据不在标准位置 | 方式 2 | `load_data(path, registry_dir="xxx")` |
+| 需要检查数据结构 | 方式 2 | `data.show()` 查看后再运行 |
+| 标准目录结构 | 方式 1 | 自动检测，最简洁 |
+
+**总结：**
+- **方式 1**：适合大多数场景，简洁智能，自动检测路径
+- **方式 2**：适合需要显式控制或检查数据的场景
+
+## 5. 查看数据结构（可选）
 
 DSLighting 提供了与 Agent 一致的数据视角，帮助你在运行任务前了解数据：
 
 ```python
 # explore_data.py
+from dotenv import load_dotenv
+load_dotenv()
+
 import dslighting
 
 def main():
@@ -285,7 +327,7 @@ if __name__ == "__main__":
 
 这就是 Agent 看到的数据！通过 `data.show()`，你可以完全理解 Agent 的数据视角。
 
-## 5. 运行脚本
+## 6. 运行脚本
 
 在终端中运行：
 
@@ -299,7 +341,7 @@ python run.py
 python run_custom.py
 ```
 
-## 6. 查看结果
+## 7. 查看结果
 
 脚本运行后，DSLighting 会在 `REGISTRY_DIR` 指定的目录下创建输出文件：
 
@@ -317,7 +359,7 @@ registry/
 └── workspace/                # 工作空间（如果 keep_workspace=True）
 ```
 
-## 7. API 参数说明
+## 8. API 参数说明
 
 ### Agent 参数
 
@@ -355,7 +397,7 @@ registry/
   - DSLighitng 会根据竞赛名称自动查找对应的 `config.yaml`
   - 包含评分脚本、准备脚本等配置文件
 
-## 8. 高级配置
+## 9. 高级配置
 
 ### 自定义任务配置
 
@@ -511,7 +553,7 @@ agent = dslighting.Agent(
 )
 ```
 
-## 9. 常见问题
+## 10. 常见问题
 
 ### Q: 为什么要使用 `load_dotenv()`？
 **A:** DSLighting 需要 `load_dotenv()` 来加载 `.env` 文件中的配置。必须在导入 `dslighting` 之前调用。
@@ -607,7 +649,7 @@ if __name__ == "__main__":
 **长期解决:**
 等待 DSLighting 官方修复并启用自动评分功能。
 
-## 10. 完整示例
+## 11. 完整示例
 
 ### 示例 1：使用默认模型（推荐）
 
