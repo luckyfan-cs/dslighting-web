@@ -123,26 +123,81 @@ LLM_MODEL_CONFIGS='{
 
 ## 4. 运行任务
 
-DSLighting 提供两种运行方式，根据你的需求选择：
+DSLighting 提供四种运行方式，根据你的需求选择：
 
-### ✅ 方式 1：使用 task_id + data_dir（推荐）
+### ✅ 方式 1：全局配置（推荐用于多任务）
 
-**最简洁的方式，适合快速运行任务：**
+**配置一次，全局生效，适合批量运行多个任务：**
 
 ```python
 # run.py
 from dotenv import load_dotenv
-load_dotenv()  # 必须有！加载 .env 文件
+load_dotenv()
+
+import dslighting
+
+def main():
+    # 配置一次，全局生效
+    dslighting.setup(
+        data_parent_dir="/path/to/data/competitions",
+        registry_parent_dir="/path/to/registry"
+    )
+
+    # 创建 Agent
+    agent = dslighting.Agent()
+
+    # 运行任务（只需 task_id）
+    result = agent.run(task_id="bike-sharing-demand")
+
+    print(f"✅ 任务完成！")
+    print(f"结果: {result}")
+
+if __name__ == "__main__":
+    main()
+```
+
+**或使用一行代码：**
+
+```python
+from dotenv import load_dotenv
+load_dotenv()
+
+import dslighting
+
+# 配置并运行
+dslighting.setup(
+    data_parent_dir="/path/to/data/competitions",
+    registry_parent_dir="/path/to/registry"
+)
+
+result = dslighting.run_agent(task_id="bike-sharing-demand")
+```
+
+**优点：**
+- ✅ 配置一次，所有任务共享
+- ✅ 适合批量运行多个任务
+- ✅ 代码更简洁，只需传 task_id
+
+---
+
+### 方式 2：直接路径（明确清晰）
+
+**显式指定完整路径，适合单个任务运行：**
+
+```python
+# run.py
+from dotenv import load_dotenv
+load_dotenv()
 
 import dslighting
 
 def main():
     agent = dslighting.Agent()
 
-    # data_dir 指向父目录，task_id 指定具体任务
     result = agent.run(
-        task_id="bike-sharing-demand",  # 任务名称
-        data_dir="/path/to/dslighting/data/competitions"  # 父目录
+        task_id="bike-sharing-demand",
+        data_dir="/path/to/data/competitions/bike-sharing-demand",
+        registry_dir="/path/to/registry/bike-sharing-demand"
     )
 
     print(f"✅ 任务完成！")
@@ -152,20 +207,47 @@ if __name__ == "__main__":
     main()
 ```
 
-**DSLighting 会自动：**
-1. 拼接路径：`data_dir + task_id` = `/path/to/dslighting/data/competitions/bike-sharing-demand`
-2. 自动检测 `registry_dir`（查找 `benchmarks/mlebench/competitions`）
-
 **优点：**
-- ✅ 更简洁，一步到位
-- ✅ 自动检测 registry_dir
-- ✅ 符合 DSLighting 的智能 API 设计
+- ✅ 路径清晰明确，易于理解
+- ✅ 适合单个任务
+- ✅ 不依赖全局配置
 
 ---
 
-### 方式 2：先 load_data 再运行（灵活）
+### 方式 3：内置数据集（最简单）
 
-**适合需要检查数据或自定义 registry_dir 的场景：**
+**使用 DSLighting 内置数据集，无需任何配置：**
+
+```python
+# run_builtin.py
+from dotenv import load_dotenv
+load_dotenv()
+
+import dslighting
+
+def main():
+    # 无需配置，直接使用
+    result = dslighting.run_agent(task_id="bike-sharing-demand")
+
+    print(f"✅ 任务完成！")
+    print(f"结果: {result}")
+
+if __name__ == "__main__":
+    main()
+```
+
+**优点：**
+- ✅ 零配置，开箱即用
+- ✅ 适合快速测试和学习
+- ✅ DSLighting 自动管理路径
+
+**注意：** 内置数据集有限，生产环境建议使用方式 1 或方式 2。
+
+---
+
+### 方式 4：先加载数据（灵活检查）
+
+**先加载数据并检查，适合需要验证数据的场景：**
 
 ```python
 # run_custom.py
@@ -177,14 +259,24 @@ import dslighting
 def main():
     # 1. 先加载数据（完整路径）
     data = dslighting.load_data(
-        "/path/to/dslighting/data/competitions/bike-sharing-demand",  # 完整任务路径
-        registry_dir="/path/to/dslighting/benchmarks/mlebench/competitions"  # 显式指定
+        "/path/to/data/competitions/bike-sharing-demand",
+        registry_dir="/path/to/registry/bike-sharing-demand"
     )
 
-    # 2. 创建 Agent
+    # 2. 检查数据（可选）
+    print(data.show())
+    # 输出：
+    # Task ID: bike-sharing-demand
+    # Task Type: kaggle
+    # Public dir: .../prepared/public
+    #   📄 train.csv (12 columns)
+    #   📄 test.csv (9 columns)
+    # ...
+
+    # 3. 创建 Agent
     agent = dslighting.Agent()
 
-    # 3. 运行任务（传入 LoadedData 对象）
+    # 4. 运行任务
     result = agent.run(data)
 
     print(f"✅ 任务完成！")
@@ -195,30 +287,15 @@ if __name__ == "__main__":
 ```
 
 **优点：**
-- ✅ 可以在运行前检查数据结构：`print(data.show())`
-- ✅ 适合 registry_dir 不在标准位置的情况
-- ✅ 更灵活，可以对数据做预处理
+- ✅ 可以在运行前检查数据结构
+- ✅ 适合调试和验证
+- ✅ 可以对数据做预处理
 
 ---
 
-### 实际场景对比
+### Agent 默认配置
 
-**场景 1：快速测试（用方式 1）**
-
-```python
-from dotenv import load_dotenv
-load_dotenv()
-
-import dslighting
-
-# 一行代码搞定
-result = dslighting.Agent().run(
-    task_id="bike-sharing-demand",
-    data_dir="data/competitions"
-)
-```
-
-**场景 2：需要先检查数据（用方式 2）**
+创建 Agent 时可以使用默认参数：
 
 ```python
 from dotenv import load_dotenv
@@ -226,41 +303,40 @@ load_dotenv()
 
 import dslighting
 
-# 先加载数据并检查
-data = dslighting.load_data(
-    "data/competitions/bike-sharing-demand",
-    registry_dir="registry"
-)
-
-# 查看数据结构
-print(data.show())
-# 输出：
-# Task ID: bike-sharing-demand
-# Task Type: kaggle
-# Public dir: .../prepared/public
-#   📄 train.csv (12 columns)
-#   📄 test.csv (9 columns)
-# ...
-
-# 确认无误后再运行
+# 使用默认配置
 agent = dslighting.Agent()
-result = agent.run(data)
+
+# 等价于：
+agent = dslighting.Agent(
+    workflow="aide",          # 工作流类型
+    model="gpt-4o-mini",      # LLM 模型（使用 .env 中的 LLM_MODEL）
+    temperature=0.7,          # 生成温度
+    max_iterations=5          # 最大迭代次数
+)
 ```
+
+**参数说明：**
+- **`workflow`**: 工作流类型，默认 `"aide"`
+- **`model`**: LLM 模型，从 `.env` 的 `LLM_MODEL` 读取
+- **`temperature`**: 生成温度（0.0-2.0），默认 0.7
+- **`max_iterations`**: 最大迭代次数，默认 5
 
 ---
 
 ### 如何选择？
 
-| 场景 | 推荐方式 | 代码 |
-|------|----------|------|
-| 快速运行 | 方式 1 | `agent.run(task_id="xxx", data_dir="xxx")` |
-| 数据不在标准位置 | 方式 2 | `load_data(path, registry_dir="xxx")` |
-| 需要检查数据结构 | 方式 2 | `data.show()` 查看后再运行 |
-| 标准目录结构 | 方式 1 | 自动检测，最简洁 |
+| 场景 | 推荐方式 | 代码示例 |
+|------|----------|----------|
+| 批量运行多个任务 | 方式 1 | `dslighting.setup()` + `agent.run(task_id)` |
+| 单个任务，明确路径 | 方式 2 | `agent.run(task_id, data_dir, registry_dir)` |
+| 快速测试和学习 | 方式 3 | `dslighting.run_agent(task_id)` |
+| 需要检查数据 | 方式 4 | `data.show()` 查看后再运行 |
 
 **总结：**
-- **方式 1**：适合大多数场景，简洁智能，自动检测路径
-- **方式 2**：适合需要显式控制或检查数据的场景
+- **方式 1**：多任务场景，配置一次，重复使用
+- **方式 2**：单任务场景，路径清晰，易于理解
+- **方式 3**：零配置测试，快速上手
+- **方式 4**：需要验证数据，灵活调试
 
 ## 5. 查看数据结构（可选）
 
