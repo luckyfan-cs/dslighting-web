@@ -301,8 +301,11 @@ print(f"Cost: ${result.cost:.2f}")
 | 参数名 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
 | `case_dir` | str | - | 经验回放目录路径。用于保存和加载历史经验案例。 |
+| `enable_rag` | bool | True | 是否启用 RAG（检索增强生成）。启用时会使用知识库检索相似历史经验。 |
 
 ### v1.9.0+ API 完整示例
+
+#### 方法 1：基本用法（启用 RAG - 默认）
 
 ```python
 from dotenv import load_dotenv
@@ -319,7 +322,8 @@ agent = dslighting.Agent(
     max_iterations=10,
 
     automind={
-        "case_dir": "./experience_replay"
+        "case_dir": "./experience_replay",
+        "enable_rag": True  # 默认值，使用知识库检索
     }
 )
 
@@ -328,6 +332,58 @@ result = agent.run(data)
 print(f"Score: {result.score}")
 print(f"Output: {result.output}")
 print(f"Cost: ${result.cost:.2f}")
+```
+
+#### 方法 2：禁用 RAG（避免 HuggingFace 下载）
+
+```python
+from dotenv import load_dotenv
+load_dotenv()
+
+import dslighting
+
+data = dslighting.load_data("/path/to/your/data")
+
+agent = dslighting.Agent(
+    workflow="automind",
+    model="gpt-4o",
+    temperature=0.5,
+    max_iterations=10,
+
+    automind={
+        "enable_rag": False  # 禁用知识库，不需要 HuggingFace
+    }
+)
+
+result = agent.run(data)
+
+print(f"Score: {result.score}")
+print(f"Cost: ${result.cost:.2f}")
+```
+
+#### 方法 3：使用 DeepSeek 模型并禁用 RAG
+
+```python
+from dotenv import load_dotenv
+load_dotenv()
+
+import dslighting
+
+data = dslighting.load_data("/path/to/your/data")
+
+agent = dslighting.Agent(
+    model="openai/deepseek-ai/DeepSeek-V3",  # 或其他 DeepSeek 模型
+    workflow="automind",
+    automind={
+        "enable_rag": False  # 禁用知识库检索
+    }
+)
+
+result = agent.run(data)
+
+print(f"Score: {result.score}")
+print(f"Cost: ${result.cost:.2f}")
+print(f"Output: {result.output}")
 ```
 
 ### 参数详解
@@ -369,6 +425,50 @@ experience_replay/
 ├── vectors/        # 向量索引
 └── metadata.json   # 元数据
 ```
+
+#### `enable_rag`
+
+**作用**: 控制是否启用 RAG（检索增强生成）功能
+
+**何时使用**:
+
+| 场景 | 推荐设置 | 说明 |
+|------|---------|------|
+| 需要从历史经验中学习 | `enable_rag=True` | 使用向量数据库检索相似案例 |
+| 避免 HuggingFace 下载 | `enable_rag=False` | 不使用知识库，避免网络问题 |
+| 首次运行/无历史数据 | `enable_rag=False` | 没有历史案例时无需 RAG |
+| 使用国产模型（DeepSeek等） | `enable_rag=False` | 避免依赖 HuggingFace |
+
+**示例**:
+
+```python
+# 启用 RAG（默认）
+agent = dslighting.Agent(
+    workflow="automind",
+    automind={"enable_rag": True}  # 需要安装 sentence-transformers
+)
+
+# 禁用 RAG
+agent = dslighting.Agent(
+    workflow="automind",
+    automind={"enable_rag": False}  # 不需要额外依赖
+)
+
+# 配合 case_dir 使用
+agent = dslighting.Agent(
+    workflow="automind",
+    automind={
+        "case_dir": "./experience_replay",
+        "enable_rag": True  # 从历史案例中检索
+    }
+)
+```
+
+**注意事项**:
+
+- `enable_rag=True` 时，AutoMind 会使用 HuggingFace 的嵌入模型
+- 如果网络无法访问 HuggingFace，建议设置 `enable_rag=False`
+- 禁用 RAG 后，AutoMind 仍然会保存案例到 `case_dir`，但不会检索历史经验
 
 ### 源码位置
 
@@ -658,12 +758,19 @@ data = dslighting.load_data("/path/to/your/data")
 agent = dslighting.Agent(
     workflow="automind",
     automind={
-        "case_dir": "./experience_replay"
+        "case_dir": "./experience_replay",
+        "enable_rag": True  # 启用知识库检索
     }
 )
 
 result = agent.run(data)
 print(f"Score: {result.score}")
+
+# 禁用 RAG（避免 HuggingFace）
+agent = dslighting.Agent(
+    workflow="automind",
+    automind={"enable_rag": False}
+)
 ```
 
 ### DS-Agent
